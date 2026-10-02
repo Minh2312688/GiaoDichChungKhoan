@@ -25,3 +25,6 @@ replay_pid*
 
 # Local git worktrees
 .worktrees/
+.m2/
+.tools/
+target/

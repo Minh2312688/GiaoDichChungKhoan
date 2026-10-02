@@ -1,0 +1,1 @@
+package com.tradingsimulator.tradingengine.botstrategies; public abstract class BaseStrategy implements IBotStrategy { protected final int period; protected BaseStrategy(int p){if(p<1)throw new IllegalArgumentException("Period must be positive");period=p;} }

@@ -1,0 +1,1 @@
+package com.tradingsimulator.tradingengine.botstrategies; import com.tradingsimulator.model.OrderSide; import java.math.BigDecimal; import java.util.List; public interface IBotStrategy { OrderSide signal(List<BigDecimal> prices); default OrderSide signal(double rsi){return null;} }

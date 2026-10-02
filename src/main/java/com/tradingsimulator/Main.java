@@ -1,0 +1,1 @@
+package com.tradingsimulator; import com.tradingsimulator.core.*; import java.math.BigDecimal; public final class Main { public static void main(String[] args){System.out.println("Trading Simulator offline MVP"); ExchangeEngine.getInstance().reset(new BigDecimal("10000"));} }

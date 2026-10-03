@@ -18,7 +18,7 @@ public final class ValidationChain {
 
   public ValidationChain add(IValidator validator) {
     if (validator == null) {
-      throw new IllegalArgumentException("Validator is required");
+      throw new IllegalArgumentException("Validator không được để trống");
     }
     validators.add(validator);
     return this;

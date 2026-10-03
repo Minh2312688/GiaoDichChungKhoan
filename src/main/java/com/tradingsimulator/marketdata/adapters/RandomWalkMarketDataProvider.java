@@ -48,7 +48,7 @@ public final class RandomWalkMarketDataProvider implements IMarketDataProvider {
   public synchronized Quote fetch(String symbol) {
     BigDecimal current = prices.get(symbol);
     if (current == null) {
-      throw new IllegalArgumentException("Unknown symbol: " + symbol);
+      throw new IllegalArgumentException("Mã không tồn tại: " + symbol);
     }
     BigDecimal delta = BigDecimal.valueOf(random.nextDouble() * 2 - 1).setScale(4, RoundingMode.HALF_UP);
     BigDecimal next = current
@@ -65,7 +65,7 @@ public final class RandomWalkMarketDataProvider implements IMarketDataProvider {
   public synchronized BigDecimal currentPrice(String symbol) {
     BigDecimal price = prices.get(symbol);
     if (price == null) {
-      throw new IllegalArgumentException("Unknown symbol: " + symbol);
+      throw new IllegalArgumentException("Mã không tồn tại: " + symbol);
     }
     return price;
   }

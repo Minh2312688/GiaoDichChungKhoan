@@ -77,6 +77,11 @@ public final class MainWindow extends JFrame {
     adapter.addObserver(new PriceObserver(quote -> SwingUtilities.invokeLater(() -> {
       priceBoard.setQuote(quote.symbol(), quote.bid().toPlainString(), quote.ask().toPlainString());
       facade.updateQuote(quote);
+      try {
+        facade.matchPending(quote.symbol());
+      } catch (IllegalArgumentException error) {
+        // Giữ lệnh pending nếu validation thất bại; timer vẫn tiếp tục cập nhật giá.
+      }
       refreshPortfolio();
     })));
 

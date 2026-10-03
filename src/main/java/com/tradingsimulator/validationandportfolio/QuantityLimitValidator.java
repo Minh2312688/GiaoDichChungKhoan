@@ -9,7 +9,7 @@ public final class QuantityLimitValidator implements IValidator {
 
   public QuantityLimitValidator(int maxQuantity) {
     if (maxQuantity < 1) {
-      throw new IllegalArgumentException("Max quantity must be positive");
+      throw new IllegalArgumentException("Hạn mức khối lượng phải dương");
     }
     this.maxQuantity = maxQuantity;
   }

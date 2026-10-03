@@ -14,7 +14,7 @@ try {
   $wrapper = Get-ChildItem -Path (Join-Path $env:USERPROFILE '.m2\wrapper\dists') `
     -Recurse -Filter 'mvn.cmd' -ErrorAction SilentlyContinue | Select-Object -First 1
   if ($wrapper) {
-    & $wrapper.FullName -o -B -Dmaven.repo.local=.m2 test
+    & $wrapper.FullName -o -B '-Dmaven.repo.local=.m2' test
     exit $LASTEXITCODE
   }
 

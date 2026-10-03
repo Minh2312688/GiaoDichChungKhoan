@@ -15,6 +15,11 @@ khớp lệnh giả lập, phát thông báo giá và lưu snapshot danh mục.
 tiền/giá và các lớp bất biến cho quote, order, trade. `TradingFacade` là cổng duy nhất của
 UI/bot; `ExchangeEngine` là Singleton giữ sổ lệnh tối giản và danh mục hiện tại.
 
+Toàn bộ các chỉ báo kỹ thuật (Technical Indicators), bao gồm RSI, sử dụng kiểu dữ liệu `double`
+trong phần tính toán để tối ưu hiệu năng trên dữ liệu lớn. Khi trả giá trị indicator cho giao diện,
+phải làm tròn còn 2 hoặc 4 chữ số thập phân. Các điều kiện kích hoạt tín hiệu dùng `<` hoặc `>`;
+không dùng toán tử bằng tuyệt đối `==` cho số `double`.
+
 Luồng chính: UI hoặc bot → facade → chuỗi kiểm tra hợp lệ → factory tạo lệnh → exchange engine
 → adapter/observer dữ liệu thị trường → snapshot danh mục. Dữ liệu thị trường mặc định là
 provider mô phỏng deterministic để kiểm thử không cần mạng.

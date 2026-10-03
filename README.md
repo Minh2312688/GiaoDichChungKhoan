@@ -25,6 +25,10 @@ Trên Windows có thể chạy `scripts/run-tests.ps1`.
 
 Mọi giá và tiền đều dùng `BigDecimal`; dữ liệu thị trường không cần mạng.
 
+Quy ước riêng cho bot: toàn bộ technical indicators (MA, RSI, MACD, Bollinger Bands) dùng
+`double` trong phép tính để tối ưu hiệu năng dữ liệu lớn. Khi hiển thị lên giao diện, indicator
+được làm tròn còn 2 hoặc 4 chữ số thập phân; điều kiện tín hiệu dùng `<` và `>`, không dùng `==`.
+
 ## Phân công theo mẫu thiết kế
 
 | Thành viên | Mẫu thiết kế | Module chính |

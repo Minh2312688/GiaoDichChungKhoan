@@ -3,7 +3,8 @@
 Nhóm có **4 thành viên**. Chương trình dùng đúng **8 mẫu thiết kế**, chia đều **mỗi người 2 mẫu**
 để mỗi thành viên phụ trách trọn vẹn một nhóm mẫu và các lớp liên quan.
 
-> Quy ước chung: mọi thao tác qua `TradingFacade`; tiền/giá dùng `BigDecimal`; lỗi nhập liệu
+> Quy ước chung: mọi thao tác qua `TradingFacade`; tiền/giá giao dịch dùng `BigDecimal`; technical
+> indicators dùng `double`, hiển thị làm tròn 2 hoặc 4 chữ số và so sánh bằng `<`/`>`; lỗi nhập liệu
 > ném `IllegalArgumentException` với thông báo rõ ràng. Xem thêm `CONTRIBUTING.md`.
 > Bảng kế hoạch theo tuần nằm ở `docs/KE_HOACH.md`.
 

@@ -16,6 +16,10 @@ Luồng chính: UI hoặc bot → facade → chuỗi kiểm tra hợp lệ → f
 → adapter/observer dữ liệu thị trường → snapshot danh mục. Dữ liệu thị trường mặc định là
 provider mô phỏng deterministic để kiểm thử không cần mạng.
 
+Toàn bộ Technical Indicators, bao gồm RSI, dùng `double` trong tính toán để tối ưu hiệu năng trên
+dữ liệu lớn. Giá trị indicator trả về giao diện phải được làm tròn 2 hoặc 4 chữ số; điều kiện tín
+hiệu dùng `<`/`>`, không dùng `==` cho số `double`.
+
 ## Mẫu thiết kế
 
 | Mẫu | Thành phần | Trách nhiệm |

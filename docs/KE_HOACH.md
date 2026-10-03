@@ -11,6 +11,10 @@ Ký hiệu trạng thái: ✅ hoàn thành · 🔄 đang làm · ⬜ chưa bắt
   Observer, Strategy, Chain of Responsibility.
 - Mỗi thành viên phụ trách 2 mẫu, kèm kiểm thử; cả nhóm cùng ráp giao diện và nghiệm thu.
 
+Quy chuẩn chỉ báo: toàn bộ Technical Indicators, bao gồm RSI, dùng `double` trong tính toán để
+tối ưu hiệu năng dữ liệu lớn; khi hiển thị lên giao diện, giá trị được làm tròn 2 hoặc 4 chữ số.
+Điều kiện kích hoạt tín hiệu dùng `<`/`>`, không dùng `==` cho số `double`.
+
 ## 2. Bảng phân công theo mẫu thiết kế
 
 | Thành viên | Mẫu 1 | Mẫu 2 |
@@ -51,12 +55,12 @@ Ký hiệu trạng thái: ✅ hoàn thành · 🔄 đang làm · ⬜ chưa bắt
 - [x] Chain of Responsibility: `ValidationChain` + các validator.
 - [x] Strategy: MA/RSI/MACD/Bollinger.
 - [x] Giao diện Swing: bảng giá, form lệnh, bot, danh mục, lịch sử lệnh, theme.
-- [x] Kiểm thử: 33 test pass.
+- [x] Kiểm thử: 37 test pass.
 
 ## 5. Mốc kiểm thử & nghiệm thu
 
 ```bash
-mvn -o -Dmaven.repo.local=.m2 test        # 33 test, 0 lỗi
+mvn -o -Dmaven.repo.local=.m2 test        # 37 test, 0 lỗi
 mvn -o -Dmaven.repo.local=.m2 exec:java    # khởi động chế độ console
 ```
 

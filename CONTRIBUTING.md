@@ -30,6 +30,11 @@ Trên Windows có thể dùng script `scripts/run-tests.ps1`.
 ## Quy ước viết mã
 
 - Tiền và giá **luôn dùng `BigDecimal`**; làm tròn bằng `RoundingMode.HALF_UP`.
+- Toàn bộ các chỉ báo kỹ thuật (Technical Indicators), bao gồm RSI, sử dụng kiểu dữ liệu
+  `double` trong phần tính toán để tối ưu hiệu năng trên dữ liệu lớn. Giá trị chỉ báo khi
+  hiển thị phải được làm tròn còn 2 hoặc 4 chữ số thập phân.
+- Điều kiện kích hoạt tín hiệu dựa trên `double` phải dùng `<` hoặc `>`; không dùng so sánh
+  bằng tuyệt đối `==` cho các giá trị chỉ báo.
 - Đối tượng miền (domain) bất biến (`record`) khi có thể.
 - UI/bot chỉ gọi `TradingFacade`; không truy cập `ExchangeEngine` trực tiếp.
 - Lỗi nhập liệu/vi phạm nghiệp vụ ném `IllegalArgumentException` với thông báo rõ ràng.

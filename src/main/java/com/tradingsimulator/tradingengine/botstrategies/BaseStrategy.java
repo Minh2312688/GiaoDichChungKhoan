@@ -3,4 +3,4 @@ package com.tradingsimulator.tradingengine.botstrategies; /**
  *
  * <p>Chủ sở hữu: Thành viên 4 (mẫu Strategy).</p>
  */
-public abstract class BaseStrategy implements IBotStrategy { protected final int period; protected BaseStrategy(int p){if(p<1)throw new IllegalArgumentException("Period must be positive");period=p;} }
+public abstract class BaseStrategy implements IBotStrategy { protected final int period; protected BaseStrategy(int p){if(p<1)throw new IllegalArgumentException("Chu kỳ phải dương");period=p;} }

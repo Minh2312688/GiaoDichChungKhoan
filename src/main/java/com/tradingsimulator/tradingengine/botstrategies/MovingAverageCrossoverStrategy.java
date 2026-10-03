@@ -2,7 +2,6 @@ package com.tradingsimulator.tradingengine.botstrategies;
 
 import com.tradingsimulator.model.OrderSide;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 
 /**
@@ -23,15 +22,12 @@ public final class MovingAverageCrossoverStrategy extends BaseStrategy {
   @Override
   public OrderSide signal(List<BigDecimal> prices) {
     if (prices == null || prices.size() < period + 1) return null;
-    BigDecimal previous = average(prices.subList(prices.size() - period - 1, prices.size() - 1));
-    BigDecimal current = average(prices.subList(prices.size() - period, prices.size()));
-    return current.compareTo(previous) > 0 ? OrderSide.BUY
-        : current.compareTo(previous) < 0 ? OrderSide.SELL : null;
+    double previous = average(prices.subList(prices.size() - period - 1, prices.size() - 1));
+    double current = average(prices.subList(prices.size() - period, prices.size()));
+    return current > previous ? OrderSide.BUY : current < previous ? OrderSide.SELL : null;
   }
 
-  private BigDecimal average(List<BigDecimal> values) {
-    return values.stream()
-        .reduce(BigDecimal.ZERO, BigDecimal::add)
-        .divide(BigDecimal.valueOf(period), 8, RoundingMode.HALF_UP);
+  private double average(List<BigDecimal> values) {
+    return values.stream().mapToDouble(BigDecimal::doubleValue).average().orElse(0.0);
   }
 }

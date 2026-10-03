@@ -27,7 +27,7 @@ public final class MacdStrategy extends BaseStrategy {
       throw new IllegalArgumentException("Short period must be positive and smaller than long period");
     }
     if (signalPeriod < 1) {
-      throw new IllegalArgumentException("Signal period must be positive");
+      throw new IllegalArgumentException("Tín hiệu (signal period) phải dương");
     }
     this.shortPeriod = shortPeriod;
     this.longPeriod = longPeriod;
@@ -40,21 +40,21 @@ public final class MacdStrategy extends BaseStrategy {
     if (prices == null || prices.size() < required) {
       return null;
     }
-    BigDecimal now = macdLine(prices);
-    BigDecimal previous = macdLine(prices.subList(0, prices.size() - 1));
-    return now.compareTo(previous) > 0 ? OrderSide.BUY
-        : now.compareTo(previous) < 0 ? OrderSide.SELL : null;
+    double now = macdLine(prices);
+    double previous = macdLine(prices.subList(0, prices.size() - 1));
+    return now > previous ? OrderSide.BUY : now < previous ? OrderSide.SELL : null;
   }
 
-  private BigDecimal macdLine(List<BigDecimal> prices) {
-    return ema(prices, shortPeriod).subtract(ema(prices, longPeriod));
+  private double macdLine(List<BigDecimal> prices) {
+    return ema(prices, shortPeriod) - ema(prices, longPeriod);
   }
 
-  private static BigDecimal ema(List<BigDecimal> values, int period) {
-    BigDecimal factor = BigDecimal.valueOf(2.0 / (period + 1));
-    BigDecimal ema = values.get(0);
+  private static double ema(List<BigDecimal> values, int period) {
+    double factor = 2.0 / (period + 1);
+    double ema = values.get(0).doubleValue();
     for (int i = 1; i < values.size(); i++) {
-      ema = values.get(i).subtract(ema).multiply(factor).add(ema);
+      double value = values.get(i).doubleValue();
+      ema = value - (value - ema) * (1.0 - factor);
     }
     return ema;
   }

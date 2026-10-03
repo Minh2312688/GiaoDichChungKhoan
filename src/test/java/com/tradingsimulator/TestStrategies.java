@@ -3,6 +3,8 @@ package com.tradingsimulator;
 import com.tradingsimulator.model.OrderSide;
 import com.tradingsimulator.tradingengine.botstrategies.BollingerBandsStrategy;
 import com.tradingsimulator.tradingengine.botstrategies.MacdStrategy;
+import com.tradingsimulator.tradingengine.botstrategies.RsiThresholdStrategy;
+import com.tradingsimulator.ui.IndicatorDisplayFormatter;
 import java.math.BigDecimal;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -45,6 +47,20 @@ class TestStrategies {
   void bollingerReturnsNullInsideBands() {
     BollingerBandsStrategy strategy = new BollingerBandsStrategy(3, new BigDecimal("2"));
     assertNull(strategy.signal(List.of(bd("10"), bd("10"), bd("10"))));
+  }
+
+  @Test
+  void rsiUsesStrictThresholdComparisons() {
+    RsiThresholdStrategy strategy = new RsiThresholdStrategy(30, 70);
+    assertEquals(OrderSide.BUY, strategy.signal(29.999));
+    assertNull(strategy.signal(30.0));
+    assertNull(strategy.signal(70.0));
+    assertEquals(OrderSide.SELL, strategy.signal(70.001));
+  }
+
+  @Test
+  void indicatorValuesAreRoundedForDisplay() {
+    assertEquals("35.42", IndicatorDisplayFormatter.format(35.4249));
   }
 
   private static BigDecimal bd(String value) {

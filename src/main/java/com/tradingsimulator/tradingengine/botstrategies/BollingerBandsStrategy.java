@@ -2,8 +2,6 @@ package com.tradingsimulator.tradingengine.botstrategies;
 
 import com.tradingsimulator.model.OrderSide;
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.List;
 
 /**
@@ -15,15 +13,19 @@ import java.util.List;
  * <p>Chủ sở hữu: Thành viên 4 (mẫu Strategy).</p>
  */
 public final class BollingerBandsStrategy extends BaseStrategy {
-  private final BigDecimal multiplier;
+  private final double multiplier;
 
   public BollingerBandsStrategy() {
-    this(5, new BigDecimal("2"));
+    this(5, 2.0);
   }
 
   public BollingerBandsStrategy(int period, BigDecimal multiplier) {
+    this(period, multiplier == null ? Double.NaN : multiplier.doubleValue());
+  }
+
+  public BollingerBandsStrategy(int period, double multiplier) {
     super(period);
-    if (multiplier == null || multiplier.signum() <= 0) {
+    if (!Double.isFinite(multiplier) || multiplier <= 0.0) {
       throw new IllegalArgumentException("Multiplier must be positive");
     }
     this.multiplier = multiplier;
@@ -35,18 +37,14 @@ public final class BollingerBandsStrategy extends BaseStrategy {
       return null;
     }
     List<BigDecimal> window = prices.subList(prices.size() - period, prices.size());
-    BigDecimal mean = window.stream()
-        .reduce(BigDecimal.ZERO, BigDecimal::add)
-        .divide(BigDecimal.valueOf(period), 8, RoundingMode.HALF_UP);
-    BigDecimal variance = window.stream()
-        .map(value -> value.subtract(mean).pow(2))
-        .reduce(BigDecimal.ZERO, BigDecimal::add)
-        .divide(BigDecimal.valueOf(period), 8, RoundingMode.HALF_UP);
-    BigDecimal stdDev = variance.sqrt(new MathContext(10));
-    BigDecimal upper = mean.add(multiplier.multiply(stdDev));
-    BigDecimal lower = mean.subtract(multiplier.multiply(stdDev));
-    BigDecimal last = prices.get(prices.size() - 1);
-    return last.compareTo(lower) < 0 ? OrderSide.BUY
-        : last.compareTo(upper) > 0 ? OrderSide.SELL : null;
+    double mean = window.stream().mapToDouble(BigDecimal::doubleValue).average().orElse(0.0);
+    double variance = window.stream()
+        .mapToDouble(value -> Math.pow(value.doubleValue() - mean, 2.0))
+        .average().orElse(0.0);
+    double stdDev = Math.sqrt(variance);
+    double upper = mean + multiplier * stdDev;
+    double lower = mean - multiplier * stdDev;
+    double last = prices.get(prices.size() - 1).doubleValue();
+    return last < lower ? OrderSide.BUY : last > upper ? OrderSide.SELL : null;
   }
 }

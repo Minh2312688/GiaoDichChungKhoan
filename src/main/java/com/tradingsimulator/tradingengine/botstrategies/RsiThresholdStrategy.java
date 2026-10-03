@@ -2,7 +2,6 @@ package com.tradingsimulator.tradingengine.botstrategies;
 
 import com.tradingsimulator.model.OrderSide;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 
 /**
@@ -20,22 +19,24 @@ public final class RsiThresholdStrategy extends BaseStrategy {
 
   public RsiThresholdStrategy(double low, double high) {
     super(1);
-    if (low < 0 || high > 100 || low >= high) throw new IllegalArgumentException("RSI thresholds invalid");
+    if (low < 0 || high > 100 || low >= high) throw new IllegalArgumentException("Ngưỡng RSI không hợp lệ");
     this.low = low;
     this.high = high;
   }
 
   @Override
   public OrderSide signal(List<BigDecimal> prices) {
-    if (prices == null || prices.size() < 2) return null;
-    BigDecimal previous = prices.get(prices.size() - 2);
-    BigDecimal current = prices.get(prices.size() - 1);
-    if (previous.signum() == 0) return null;
-    BigDecimal change = current.subtract(previous)
-        .divide(previous, 8, RoundingMode.HALF_UP)
-        .multiply(BigDecimal.valueOf(100));
-    double proxyRsi = BigDecimal.valueOf(50).add(change).doubleValue();
-    return signal(proxyRsi);
+    double rsi = estimateRsi(prices);
+    return Double.isNaN(rsi) ? null : signal(rsi);
+  }
+
+  /** Estimates RSI as double for high-volume indicator calculations. */
+  public double estimateRsi(List<BigDecimal> prices) {
+    if (prices == null || prices.size() < 2) return Double.NaN;
+    double previous = prices.get(prices.size() - 2).doubleValue();
+    double current = prices.get(prices.size() - 1).doubleValue();
+    if (previous > -Double.MIN_VALUE && previous < Double.MIN_VALUE) return Double.NaN;
+    return 50.0 + ((current - previous) / previous * 100.0);
   }
 
   @Override

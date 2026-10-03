@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+/** Kiểm thử Adapter/Observer/Factory/Strategy/Chain (Thành viên 1–4). */
 class TestPatterns {
   @Test void adapterNormalizesMockQuoteAndObserverReceivesIt() {
     MockMarketDataProvider provider = new MockMarketDataProvider(Map.of("ABC", new BigDecimal("12.50")));

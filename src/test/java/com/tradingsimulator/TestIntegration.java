@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
+/** Luồng tích hợp quote → kiểm tra → thực thi → danh mục (Thành viên 2 – Facade/Memento). */
 class TestIntegration {
   @Test void quoteValidationFactoryExecutionPortfolioWorkflow() {
     ExchangeEngine engine = ExchangeEngine.getInstance(); engine.reset(new BigDecimal("1000"));

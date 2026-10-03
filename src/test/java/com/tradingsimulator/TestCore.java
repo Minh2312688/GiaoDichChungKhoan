@@ -6,6 +6,7 @@ import org.junit.jupiter.api.*;
 import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.*;
 
+/** Chủ sở hữu: Thành viên 1 (mẫu Singleton) phối hợp Thành viên 2 (mẫu Facade). */
 class TestCore {
   @BeforeEach void reset() { ExchangeEngine.getInstance().reset(new BigDecimal("10000")); }
   @Test void singletonAndMarketBuyUpdatePortfolio() {

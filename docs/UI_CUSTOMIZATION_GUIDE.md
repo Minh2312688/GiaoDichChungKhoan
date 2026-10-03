@@ -1,3 +1,11 @@
-# UI customization
+# Tùy chỉnh giao diện
 
-Edit `src/main/resources/theme_config.json` with hexadecimal colors for `background`, `foreground`, and `accent`. `ThemeManager` falls back to safe defaults when the file is absent or malformed.
+Chỉnh sửa `src/main/resources/theme_config.json` với các màu hệ thập lục phân cho
+`background` (nền), `foreground` (chữ) và `accent` (màu nhấn). `ThemeManager` sẽ dùng giá trị
+mặc định an toàn khi tệp thiếu hoặc sai định dạng.
+
+Ví dụ:
+
+```json
+{"background":"#2f343b","foreground":"#ffffff","accent":"#2d8cdc"}
+```

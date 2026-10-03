@@ -93,10 +93,11 @@ public final class TradingFacade {
       throw new IllegalArgumentException("Không có báo giá cho mã: " + symbol);
     }
     List<Trade> executed = new ArrayList<>();
-    for (Order order : orderBook.match(quote)) {
+    for (Order order : orderBook.triggered(quote)) {
       BigDecimal price = order.side() == OrderSide.BUY ? quote.ask() : quote.bid();
       validation.validate(order, engine.cash(), engine.position(symbol).quantity(), price);
       executed.add(engine.execute(order));
+      orderBook.remove(order);
     }
     return List.copyOf(executed);
   }

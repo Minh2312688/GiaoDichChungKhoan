@@ -51,6 +51,16 @@ class TestOrderBook {
   }
 
   @Test
+  void triggeredPendingOrderRemainsWhenExecutionValidationFails() {
+    TradingFacade facade = new TradingFacade(ExchangeEngine.getInstance());
+    facade.updateQuote(new Quote("ABC", new BigDecimal("10.00"), new BigDecimal("10.00"), 1000));
+    facade.submitPending(new Order("ABC", OrderSide.BUY, OrderType.LIMIT, 2_000, new BigDecimal("10.00")));
+
+    assertThrows(IllegalArgumentException.class, () -> facade.matchPending("ABC"));
+    assertEquals(1, facade.pendingOrders().size());
+  }
+
+  @Test
   void snapshotKeepsPendingOrders() {
     TradingFacade facade = new TradingFacade(ExchangeEngine.getInstance());
     facade.updateQuote(new Quote("ABC", new BigDecimal("10.00"), new BigDecimal("10.00"), 1000));

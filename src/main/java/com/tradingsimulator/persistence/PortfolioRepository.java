@@ -3,6 +3,8 @@ package com.tradingsimulator.persistence;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.tradingsimulator.model.OrderSide;
+import com.tradingsimulator.model.Order;
+import com.tradingsimulator.model.OrderType;
 import com.tradingsimulator.model.Position;
 import com.tradingsimulator.model.Quote;
 import com.tradingsimulator.model.Trade;
@@ -38,7 +40,10 @@ public final class PortfolioRepository {
     List<TradeState> trades = memento.trades().stream()
         .map(t -> new TradeState(t.symbol(), t.side().name(), t.quantity(), t.price(), t.total()))
         .collect(Collectors.toList());
-    return new PortfolioState(memento.cash(), positions, trades);
+    List<OrderState> pendingOrders = memento.pendingOrders().stream()
+        .map(o -> new OrderState(o.symbol(), o.side().name(), o.type().name(), o.quantity(), o.price()))
+        .collect(Collectors.toList());
+    return new PortfolioState(memento.cash(), positions, trades, pendingOrders);
   }
 
   public PortfolioMemento toMemento(PortfolioState state, Map<String, Quote> quotes) {
@@ -53,8 +58,12 @@ public final class PortfolioRepository {
         .map(row -> new Trade(row.symbol(), OrderSide.valueOf(row.side()), row.quantity(),
             row.price(), row.total(), null))
         .collect(Collectors.toList());
+    List<Order> pendingOrders = state.pendingOrders().stream()
+        .map(row -> new Order(row.symbol(), OrderSide.valueOf(row.side()), OrderType.valueOf(row.type()),
+            row.quantity(), row.price()))
+        .collect(Collectors.toList());
     Map<String, Quote> safeQuotes = quotes == null ? Map.of() : quotes;
-    return new PortfolioMemento(state.cash(), positions, trades, safeQuotes);
+    return new PortfolioMemento(state.cash(), positions, trades, safeQuotes, pendingOrders);
   }
 
   public void save(PortfolioState state, Path file) {
@@ -67,7 +76,7 @@ public final class PortfolioRepository {
       }
       mapper.writeValue(file.toFile(), state);
     } catch (IOException error) {
-      throw new IllegalStateException("Cannot save portfolio to " + file, error);
+      throw new IllegalStateException("Không lưu được danh mục vào " + file, error);
     }
   }
 
@@ -78,7 +87,7 @@ public final class PortfolioRepository {
     try {
       return mapper.readValue(file.toFile(), PortfolioState.class);
     } catch (IOException error) {
-      throw new IllegalStateException("Cannot load portfolio from " + file, error);
+      throw new IllegalStateException("Không đọc được danh mục từ " + file, error);
     }
   }
 

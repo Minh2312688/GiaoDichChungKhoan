@@ -25,10 +25,10 @@ public final class OrderBook {
 
   public synchronized void add(Order order) {
     if (order == null) {
-      throw new IllegalArgumentException("Order is required");
+      throw new IllegalArgumentException("Lệnh không được để trống");
     }
     if (order.type() == OrderType.MARKET) {
-      throw new IllegalArgumentException("Market orders are executed immediately, not queued");
+      throw new IllegalArgumentException("Lệnh thị trường được thực thi ngay, không đưa vào hàng chờ");
     }
     pending.computeIfAbsent(order.symbol(), symbol -> new ArrayList<>()).add(order);
   }
@@ -45,8 +45,15 @@ public final class OrderBook {
 
   /** Returns every queued order whose trigger condition is satisfied by {@code quote}. */
   public synchronized List<Order> match(Quote quote) {
+    List<Order> triggered = triggered(quote);
+    triggered.forEach(this::remove);
+    return triggered;
+  }
+
+  /** Returns triggered orders without removing them from the book. */
+  public synchronized List<Order> triggered(Quote quote) {
     if (quote == null) {
-      throw new IllegalArgumentException("Quote is required");
+      throw new IllegalArgumentException("Báo giá không được để trống");
     }
     List<Order> queue = pending.get(quote.symbol());
     if (queue == null) {
@@ -58,11 +65,22 @@ public final class OrderBook {
         triggered.add(order);
       }
     }
-    queue.removeAll(triggered);
-    if (queue.isEmpty()) {
-      pending.remove(quote.symbol());
-    }
     return List.copyOf(triggered);
+  }
+
+  /** Removes an order after its execution has completed successfully. */
+  public synchronized void remove(Order order) {
+    if (order == null) {
+      return;
+    }
+    List<Order> queue = pending.get(order.symbol());
+    if (queue == null) {
+      return;
+    }
+    queue.remove(order);
+    if (queue.isEmpty()) {
+      pending.remove(order.symbol());
+    }
   }
 
   public synchronized void load(List<Order> orders) {

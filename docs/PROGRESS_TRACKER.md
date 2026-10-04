@@ -19,12 +19,13 @@ Phân công lại cho **4 thành viên**, mỗi người 2 mẫu thiết kế:
 
 ## Kiểm chứng
 
-Lệnh: `mvn -o -Dmaven.repo.local=.m2 test` → **37 test, 0 lỗi**.
+Lệnh: `mvn -o -Dmaven.repo.local=.m2 test` → **49 test, 0 lỗi**.
 
 Các kiểm thử mới bao phủ việc lưu/khôi phục pending orders, giữ lệnh khi execute thất bại,
-so sánh ngưỡng RSI bằng `<`/`>` và làm tròn giá trị indicator khi hiển thị.
+so sánh ngưỡng RSI bằng `<`/`>`, RSI chuẩn Wilder, làm tròn indicator, hiển thị RSI trên UI,
+luồng BotController và xử lý nhiều pending orders.
 
-Giao diện: đã áp theme, bảng giá, form đặt lệnh, điều khiển bot, tổng kết danh mục và lịch sử
+Giao diện: đã áp theme, bảng giá, form đặt lệnh, điều khiển bot có trạng thái bật/tắt và kết quả xử lý, tổng kết danh mục và lịch sử
 lệnh. Giao diện bật qua tham số `--ui` để điểm khởi động mặc định vẫn phù hợp khi kiểm thử
 không màn hình.
 

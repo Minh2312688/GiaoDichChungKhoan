@@ -64,8 +64,8 @@ Nhóm có **4 thành viên**. Chương trình dùng đúng **8 mẫu thiết k�
 - **Chain of Responsibility:** `IValidator` là một mắt xích; `ValidationChain` chạy tuần tự và
   dừng ở lỗi đầu tiên. Các rule: `BalanceValidator`, `PositionValidator`,
   `QuantityLimitValidator`, `PriceRangeValidator`.
-- Phần UI phụ trách: `BotPanel` (chọn chiến lược và bật/tắt bot).
-- Mở rộng gợi ý: RSI thật (Wilder), thêm validator (giờ giao dịch, giá trị lệnh tối đa).
+- Phần UI phụ trách: `BotPanel` (chọn chiến lược, bật/tắt bot, hiển thị RSI và trạng thái xử lý bot).
+- Mở rộng gợi ý: thêm validator (giờ giao dịch, giá trị lệnh tối đa).
 
 ## Quy trình làm việc
 

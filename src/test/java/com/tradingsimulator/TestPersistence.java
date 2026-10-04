@@ -12,9 +12,11 @@ import com.tradingsimulator.reporting.PerformanceReport;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Chủ sở hữu: Thành viên 2 (mẫu Memento); kiểm thử lưu snapshot. */
 class TestPersistence {
@@ -84,5 +86,21 @@ class TestPersistence {
     assertEquals(0, new BigDecimal("250.00").compareTo(report.marketValue()));
     assertEquals(0, new BigDecimal("1000.00").compareTo(report.equity()));
     assertEquals(0, new BigDecimal("-250.00").compareTo(report.netRealized()));
+  }
+
+  @Test
+  void loadsLegacyJsonWithoutPendingOrders() throws Exception {
+    PortfolioRepository repository = new PortfolioRepository();
+    Path file = Files.createTempFile("legacy-portfolio", ".json");
+    try {
+      Files.writeString(file, "{\"cash\":1000,\"positions\":[],\"trades\":[]}");
+
+      PortfolioState loaded = repository.load(file);
+
+      assertTrue(loaded.pendingOrders().isEmpty());
+      assertTrue(repository.toMemento(loaded, Map.of()).pendingOrders().isEmpty());
+    } finally {
+      Files.deleteIfExists(file);
+    }
   }
 }

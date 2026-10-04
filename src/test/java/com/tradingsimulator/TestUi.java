@@ -1,5 +1,7 @@
 package com.tradingsimulator;
 
+import com.tradingsimulator.core.ExchangeEngine;
+import com.tradingsimulator.core.TradingFacade;
 import com.tradingsimulator.ui.components.*;
 import com.tradingsimulator.model.*;
 import org.junit.jupiter.api.Test;
@@ -35,5 +37,23 @@ class TestUi {
     assertEquals(OrderSide.SELL, order.side());
     assertEquals(OrderType.MARKET, order.type());
     assertEquals(5, order.quantity());
+  }
+
+  @Test void botPanelDisplaysFormattedRsi(){
+    BotPanel panel = new BotPanel(new TradingFacade(ExchangeEngine.getInstance()));
+    panel.showRsi(35.4249);
+    assertEquals("RSI: 35.42", panel.getRsiLabel().getText());
+  }
+
+  @Test void botPanelReflectsEnabledStateAndStatus(){
+    BotPanel panel = new BotPanel(new TradingFacade(ExchangeEngine.getInstance()));
+    assertFalse(panel.isBotEnabled());
+
+    panel.setBotEnabled(true);
+    panel.showBotStatus("Đã đặt lệnh");
+
+    assertTrue(panel.isBotEnabled());
+    assertEquals("Bot: BẬT", panel.getBotStateLabel().getText());
+    assertEquals("Đã đặt lệnh", panel.getBotStatusLabel().getText());
   }
 }

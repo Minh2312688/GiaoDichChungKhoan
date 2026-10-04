@@ -6,8 +6,10 @@ import com.tradingsimulator.model.Order;
 import com.tradingsimulator.model.OrderSide;
 import com.tradingsimulator.model.OrderType;
 import com.tradingsimulator.model.Quote;
+import com.tradingsimulator.model.Trade;
 import com.tradingsimulator.tradingengine.OrderBook;
 import java.math.BigDecimal;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -56,7 +58,7 @@ class TestOrderBook {
     facade.updateQuote(new Quote("ABC", new BigDecimal("10.00"), new BigDecimal("10.00"), 1000));
     facade.submitPending(new Order("ABC", OrderSide.BUY, OrderType.LIMIT, 2_000, new BigDecimal("10.00")));
 
-    assertThrows(IllegalArgumentException.class, () -> facade.matchPending("ABC"));
+    assertTrue(facade.matchPending("ABC").isEmpty());
     assertEquals(1, facade.pendingOrders().size());
   }
 
@@ -70,5 +72,32 @@ class TestOrderBook {
     assertEquals(2, facade.pendingOrders().size());
     facade.restore(snapshot);
     assertEquals(1, facade.pendingOrders().size());
+  }
+
+  @Test
+  void invalidPendingOrderDoesNotBlockOtherTriggeredOrders() {
+    TradingFacade facade = new TradingFacade(ExchangeEngine.getInstance());
+    facade.updateQuote(new Quote("ABC", new BigDecimal("10.00"), new BigDecimal("10.00"), 1000));
+    facade.submitPending(new Order("ABC", OrderSide.BUY, OrderType.LIMIT, 2_000, new BigDecimal("10.00")));
+    facade.submitPending(new Order("ABC", OrderSide.BUY, OrderType.LIMIT, 1, new BigDecimal("10.00")));
+
+    List<Trade> executed = facade.matchPending("ABC");
+
+    assertEquals(1, executed.size());
+    assertEquals(1, facade.position("ABC").quantity());
+    assertEquals(1, facade.pendingOrders().size());
+    assertEquals(2_000, facade.pendingOrders().get(0).quantity());
+  }
+
+  @Test
+  void pendingOrderMatchesAfterUiStyleQuoteRefresh() {
+    TradingFacade facade = new TradingFacade(ExchangeEngine.getInstance());
+    facade.submitPending(new Order("ABC", OrderSide.BUY, OrderType.LIMIT, 5, new BigDecimal("10.00")));
+
+    facade.updateQuote(new Quote("ABC", new BigDecimal("10.00"), new BigDecimal("10.00"), 1000));
+    facade.matchPending("ABC");
+
+    assertEquals(5, facade.position("ABC").quantity());
+    assertTrue(facade.pendingOrders().isEmpty());
   }
 }

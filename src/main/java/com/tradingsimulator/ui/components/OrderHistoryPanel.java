@@ -16,7 +16,7 @@ import javax.swing.table.DefaultTableModel;
  */
 public final class OrderHistoryPanel extends JPanel {
   private final DefaultTableModel model = new DefaultTableModel(
-      new Object[] {"Time", "Symbol", "Side", "Qty", "Price", "Total"}, 0) {
+      new Object[] {"Thời gian", "Mã", "Chiều", "Khối lượng", "Giá", "Tổng tiền"}, 0) {
     @Override
     public boolean isCellEditable(int row, int column) {
       return false;
@@ -26,7 +26,7 @@ public final class OrderHistoryPanel extends JPanel {
 
   public OrderHistoryPanel() {
     setLayout(new BorderLayout(8, 8));
-    add(new JLabel("Order History"), BorderLayout.NORTH);
+    add(new JLabel("Lịch sử giao dịch"), BorderLayout.NORTH);
     add(new JScrollPane(table), BorderLayout.CENTER);
   }
 
@@ -34,7 +34,7 @@ public final class OrderHistoryPanel extends JPanel {
     model.addRow(new Object[] {
         trade.timestamp().toString(),
         trade.symbol(),
-        trade.side().name(),
+        trade.side() == com.tradingsimulator.model.OrderSide.BUY ? "MUA" : "BÁN",
         trade.quantity(),
         trade.price().toPlainString(),
         trade.total().toPlainString()});

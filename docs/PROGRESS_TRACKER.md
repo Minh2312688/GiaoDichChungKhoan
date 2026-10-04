@@ -19,7 +19,7 @@ Phân công lại cho **4 thành viên**, mỗi người 2 mẫu thiết kế:
 
 ## Kiểm chứng
 
-Lệnh: `mvn -o -Dmaven.repo.local=.m2 test` → **49 test, 0 lỗi**.
+Lệnh: `mvn -o -Dmaven.repo.local=.m2 test` → **50 test, 0 lỗi**.
 
 Các kiểm thử mới bao phủ việc lưu/khôi phục pending orders, giữ lệnh khi execute thất bại,
 so sánh ngưỡng RSI bằng `<`/`>`, RSI chuẩn Wilder, làm tròn indicator, hiển thị RSI trên UI,

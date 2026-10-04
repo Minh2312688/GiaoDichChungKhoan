@@ -31,7 +31,7 @@ public record PerformanceReport(
 
   public static PerformanceReport from(TradingFacade facade) {
     if (facade == null) {
-      throw new IllegalArgumentException("Facade is required");
+      throw new IllegalArgumentException("Cần có facade giao dịch");
     }
     BigDecimal totalBuy = BigDecimal.ZERO;
     BigDecimal totalSell = BigDecimal.ZERO;

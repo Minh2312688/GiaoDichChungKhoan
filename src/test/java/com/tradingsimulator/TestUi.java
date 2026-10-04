@@ -16,6 +16,9 @@ class TestUi {
     assertEquals(1, panel.getTable().getRowCount());
     assertEquals("ABC", panel.getTable().getValueAt(0, 0));
     assertEquals("10.10", panel.getTable().getValueAt(0, 2));
+    assertEquals("Mã", panel.getTable().getColumnName(0));
+    assertEquals("Giá mua", panel.getTable().getColumnName(1));
+    assertEquals("Giá bán", panel.getTable().getColumnName(2));
   }
 
   @Test void orderFormEmitsOrderInput(){
@@ -25,6 +28,7 @@ class TestUi {
     assertEquals("ABC", panel.getSymbol());
     assertEquals(5, panel.getQuantity());
     assertNotNull(panel.getSubmitButton());
+    assertEquals("Gửi lệnh", panel.getSubmitButton().getText());
   }
 
   @Test void orderFormCreatesMarketOrderFromInput(){
@@ -43,6 +47,17 @@ class TestUi {
     BotPanel panel = new BotPanel(new TradingFacade(ExchangeEngine.getInstance()));
     panel.showRsi(35.4249);
     assertEquals("RSI: 35.42", panel.getRsiLabel().getText());
+  }
+
+  @Test void orderHistoryDisplaysVietnameseHeadersAndSide(){
+    OrderHistoryPanel panel = new OrderHistoryPanel();
+    panel.addTrade(new Trade("ABC", OrderSide.BUY, 1, new java.math.BigDecimal("10"),
+        new java.math.BigDecimal("10"), null));
+
+    assertEquals("Thời gian", panel.getTable().getColumnName(0));
+    assertEquals("Mã", panel.getTable().getColumnName(1));
+    assertEquals("Chiều", panel.getTable().getColumnName(2));
+    assertEquals("MUA", panel.getTable().getValueAt(0, 2));
   }
 
   @Test void botPanelReflectsEnabledStateAndStatus(){

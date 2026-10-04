@@ -24,7 +24,7 @@ public final class MacdStrategy extends BaseStrategy {
   public MacdStrategy(int shortPeriod, int longPeriod, int signalPeriod) {
     super(longPeriod);
     if (shortPeriod < 1 || shortPeriod >= longPeriod) {
-      throw new IllegalArgumentException("Short period must be positive and smaller than long period");
+      throw new IllegalArgumentException("Chu kỳ ngắn phải dương và nhỏ hơn chu kỳ dài");
     }
     if (signalPeriod < 1) {
       throw new IllegalArgumentException("Tín hiệu (signal period) phải dương");

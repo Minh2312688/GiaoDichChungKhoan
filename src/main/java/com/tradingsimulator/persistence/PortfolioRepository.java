@@ -32,7 +32,7 @@ public final class PortfolioRepository {
 
   public PortfolioState capture(PortfolioMemento memento) {
     if (memento == null) {
-      throw new IllegalArgumentException("Memento is required");
+      throw new IllegalArgumentException("Cần có bản snapshot");
     }
     List<PositionState> positions = memento.positions().values().stream()
         .map(p -> new PositionState(p.symbol(), p.quantity(), p.averagePrice()))
@@ -48,7 +48,7 @@ public final class PortfolioRepository {
 
   public PortfolioMemento toMemento(PortfolioState state, Map<String, Quote> quotes) {
     if (state == null) {
-      throw new IllegalArgumentException("State is required");
+      throw new IllegalArgumentException("Cần có trạng thái danh mục");
     }
     Map<String, Position> positions = new HashMap<>();
     for (PositionState row : state.positions()) {
@@ -68,7 +68,7 @@ public final class PortfolioRepository {
 
   public void save(PortfolioState state, Path file) {
     if (state == null || file == null) {
-      throw new IllegalArgumentException("State and file are required");
+      throw new IllegalArgumentException("Cần có trạng thái và tệp lưu");
     }
     try {
       if (file.getParent() != null) {
@@ -82,7 +82,7 @@ public final class PortfolioRepository {
 
   public PortfolioState load(Path file) {
     if (file == null) {
-      throw new IllegalArgumentException("File is required");
+      throw new IllegalArgumentException("Cần có tệp lưu");
     }
     try {
       return mapper.readValue(file.toFile(), PortfolioState.class);

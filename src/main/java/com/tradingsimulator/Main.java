@@ -16,7 +16,7 @@ public final class Main {
   private Main() { }
 
   public static void main(String[] args) {
-    System.out.println("Trading Simulator offline MVP");
+    System.out.println("Trình mô phỏng giao dịch - phiên bản MVP offline");
     ExchangeEngine.getInstance().reset(new BigDecimal("10000"));
     if (Arrays.asList(args).contains("--ui") && !GraphicsEnvironment.isHeadless()) {
       SwingUtilities.invokeLater(() -> new MainWindow().setVisible(true));

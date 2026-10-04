@@ -26,7 +26,7 @@ public final class BollingerBandsStrategy extends BaseStrategy {
   public BollingerBandsStrategy(int period, double multiplier) {
     super(period);
     if (!Double.isFinite(multiplier) || multiplier <= 0.0) {
-      throw new IllegalArgumentException("Multiplier must be positive");
+      throw new IllegalArgumentException("Hệ số Bollinger phải dương");
     }
     this.multiplier = multiplier;
   }

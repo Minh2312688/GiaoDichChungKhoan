@@ -16,19 +16,27 @@ public final class OrderFormPanel extends JPanel {
   private final JTextField symbolField = new JTextField(8);
   private final JTextField quantityField = new JTextField("1", 8);
   private final JComboBox<OrderSide> sideBox = new JComboBox<>(OrderSide.values());
-  private final JButton submitButton = new JButton("Submit order");
+  private final JButton submitButton = new JButton("Gửi lệnh");
   private final JLabel statusLabel = new JLabel(" ");
 
   public OrderFormPanel() {
     setLayout(new GridBagLayout());
     GridBagConstraints c = new GridBagConstraints();
     c.insets = new Insets(4, 4, 4, 4); c.anchor = GridBagConstraints.WEST;
-    addRow("Order Form", new JLabel("Order Form"), c, 0);
-    addRow("Symbol", symbolField, c, 1);
-    addRow("Side", sideBox, c, 2);
-    addRow("Quantity", quantityField, c, 3);
+    sideBox.setRenderer(new DefaultListCellRenderer() {
+      @Override
+      public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+          boolean isSelected, boolean cellHasFocus) {
+        Object display = value == OrderSide.BUY ? "MUA" : value == OrderSide.SELL ? "BÁN" : value;
+        return super.getListCellRendererComponent(list, display, index, isSelected, cellHasFocus);
+      }
+    });
+    addRow("Đặt lệnh", new JLabel("Đặt lệnh"), c, 0);
+    addRow("Mã", symbolField, c, 1);
+    addRow("Chiều", sideBox, c, 2);
+    addRow("Khối lượng", quantityField, c, 3);
     addRow("", submitButton, c, 4);
-    addRow("Status", statusLabel, c, 5);
+    addRow("Trạng thái", statusLabel, c, 5);
   }
 
   private void addRow(String label, Component component, GridBagConstraints c, int row) {
@@ -44,7 +52,7 @@ public final class OrderFormPanel extends JPanel {
   public Order createOrder() { return new Order(getSymbol(), getSide(), OrderType.MARKET, getQuantity(), null); }
   public void onSubmit(Consumer<Order> listener) {
     submitButton.addActionListener(event -> {
-      try { listener.accept(createOrder()); setStatus("Order submitted"); }
+      try { listener.accept(createOrder()); setStatus("Đã gửi lệnh"); }
       catch (IllegalArgumentException error) { setStatus(error.getMessage()); }
     });
   }

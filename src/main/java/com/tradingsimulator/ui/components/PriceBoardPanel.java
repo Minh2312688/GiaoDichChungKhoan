@@ -10,14 +10,14 @@ import java.awt.*;
  * <p>Chủ sở hữu: Thành viên 3 (mẫu Observer).</p>
  */
 public final class PriceBoardPanel extends JPanel {
-  private final DefaultTableModel model = new DefaultTableModel(new Object[]{"Symbol", "Bid", "Ask"}, 0) {
+  private final DefaultTableModel model = new DefaultTableModel(new Object[]{"Mã", "Giá mua", "Giá bán"}, 0) {
     @Override public boolean isCellEditable(int row, int column) { return false; }
   };
   private final JTable table = new JTable(model);
 
   public PriceBoardPanel() {
     setLayout(new BorderLayout(8, 8));
-    add(new JLabel("Price Board"), BorderLayout.NORTH);
+    add(new JLabel("Bảng giá"), BorderLayout.NORTH);
     add(new JScrollPane(table), BorderLayout.CENTER);
   }
 

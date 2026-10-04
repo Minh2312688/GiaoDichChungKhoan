@@ -20,7 +20,7 @@ class TestOrderHistory {
 
     assertEquals(2, panel.getTable().getRowCount());
     assertEquals("ABC", panel.getTable().getValueAt(0, 1));
-    assertEquals("BUY", panel.getTable().getValueAt(0, 2));
+    assertEquals("MUA", panel.getTable().getValueAt(0, 2));
     assertEquals("22.00", panel.getTable().getValueAt(1, 5));
   }
 

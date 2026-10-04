@@ -47,7 +47,7 @@ public final class MainWindow extends JFrame {
   }
 
   public MainWindow(TradingFacade facade) {
-    super("Trading Simulator");
+    super("Trình mô phỏng giao dịch");
     this.facade = facade;
 
     // 1. Dữ liệu thị trường: random walk tất định để bảng giá luôn biến động khi offline.

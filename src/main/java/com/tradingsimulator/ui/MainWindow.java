@@ -5,6 +5,8 @@ import com.tradingsimulator.core.TradingFacade;
 import com.tradingsimulator.marketdata.adapters.MarketAdapter;
 import com.tradingsimulator.marketdata.adapters.RandomWalkMarketDataProvider;
 import com.tradingsimulator.marketdata.observers.PriceObserver;
+import com.tradingsimulator.tradingengine.botstrategies.RsiThresholdStrategy;
+import com.tradingsimulator.ui.bot.BotController;
 import com.tradingsimulator.ui.components.BotPanel;
 import com.tradingsimulator.ui.components.OrderFormPanel;
 import com.tradingsimulator.ui.components.OrderHistoryPanel;
@@ -36,6 +38,9 @@ public final class MainWindow extends JFrame {
   private final MarketAdapter adapter;
   private final Timer timer;
   private final Set<String> symbols;
+  private final RsiThresholdStrategy rsiIndicator = new RsiThresholdStrategy();
+  private final BotPanel botPanel;
+  private final BotController botController;
 
   public MainWindow() {
     this(new TradingFacade(ExchangeEngine.getInstance()));
@@ -62,7 +67,8 @@ public final class MainWindow extends JFrame {
     OrderFormPanel orderForm = new OrderFormPanel();
     portfolioPanel = new PortfolioPanel();
     orderHistory = new OrderHistoryPanel();
-    BotPanel botPanel = new BotPanel(facade);
+    botPanel = new BotPanel(facade);
+    botController = new BotController(facade);
 
     // 3. Bố cục
     JPanel centerPanel = new JPanel(new GridLayout(2, 2, 8, 8));
@@ -81,6 +87,18 @@ public final class MainWindow extends JFrame {
         facade.matchPending(quote.symbol());
       } catch (IllegalArgumentException error) {
         // Giữ lệnh pending nếu validation thất bại; timer vẫn tiếp tục cập nhật giá.
+      }
+      try {
+        botController.onQuote(quote);
+        botPanel.showBotStatus(botController.status().label());
+      } catch (IllegalArgumentException error) {
+        botPanel.showBotStatus(botController.status().label());
+      }
+      double rsi = rsiIndicator.estimateRsi(botController.prices(quote.symbol()));
+      if (Double.isFinite(rsi)) {
+        botPanel.showRsi(rsi);
+      } else {
+        botPanel.clearRsi();
       }
       refreshPortfolio();
     })));

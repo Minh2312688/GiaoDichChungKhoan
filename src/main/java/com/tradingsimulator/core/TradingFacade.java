@@ -94,10 +94,14 @@ public final class TradingFacade {
     }
     List<Trade> executed = new ArrayList<>();
     for (Order order : orderBook.triggered(quote)) {
-      BigDecimal price = order.side() == OrderSide.BUY ? quote.ask() : quote.bid();
-      validation.validate(order, engine.cash(), engine.position(symbol).quantity(), price);
-      executed.add(engine.execute(order));
-      orderBook.remove(order);
+      try {
+        BigDecimal price = order.side() == OrderSide.BUY ? quote.ask() : quote.bid();
+        validation.validate(order, engine.cash(), engine.position(symbol).quantity(), price);
+        executed.add(engine.execute(order));
+        orderBook.remove(order);
+      } catch (IllegalArgumentException error) {
+        // Giữ lệnh lỗi trong hàng chờ và tiếp tục xử lý các lệnh đã kích hoạt khác.
+      }
     }
     return List.copyOf(executed);
   }

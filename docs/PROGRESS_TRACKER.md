@@ -17,16 +17,24 @@ Phân công lại cho **4 thành viên**, mỗi người 2 mẫu thiết kế:
 - [x] TV3 – Adapter (`marketdata/adapters/*`) + Observer (`marketdata/observers/*`)
 - [x] TV4 – Strategy (`tradingengine/botstrategies/*`) + Chain of Responsibility (`ValidationChain`, `IValidator`)
 
+## Giai đoạn 3 – Giao diện đa màn hình nội bộ & Controller phiên (hoàn thành)
+
+- [x] Điều hướng không tạo thêm JFrame: `ScreenId`, `ScreenManager` (`CardLayout`), `SidebarNavigation`
+- [x] Điều phối dữ liệu tập trung qua EDT: `MarketSessionController` và `MarketSessionListener`
+- [x] Tách màn hình độc lập: `DashboardPanel`, `TradingPanel`, `BotScreen`, `PendingOrdersScreen`, `HistoryScreen`, `SettingsPanel`
+- [x] Hệ màu theme ngữ nghĩa: `panel`, `positive`, `negative`, `warning` kèm cơ chế fallback an toàn
+- [x] Tích hợp hoàn chỉnh `MainWindow` và giữ cờ khởi động `--ui`
+
 ## Kiểm chứng
 
-Lệnh: `mvn -o -Dmaven.repo.local=.m2 test` → **50 test, 0 lỗi**.
+Lệnh: `mvn -o -Dmaven.repo.local=.m2 test` → **62 test, 0 lỗi**.
 
-Các kiểm thử mới bao phủ việc lưu/khôi phục pending orders, giữ lệnh khi execute thất bại,
-so sánh ngưỡng RSI bằng `<`/`>`, RSI chuẩn Wilder, làm tròn indicator, hiển thị RSI trên UI,
-luồng BotController và xử lý nhiều pending orders.
+Các kiểm thử mới bao phủ:
+1. Chuyển đổi màn hình qua `ScreenManager` và phản hồi callback từ `SidebarNavigation` không tạo thêm cửa sổ (`TestNavigation`).
+2. Điều phối phiên giao dịch, khớp lệnh chờ tự động và phát sự kiện qua `MarketSessionController` (`TestMarketSessionController`).
+3. Trình bày dữ liệu tổng quan, bảng lệnh chờ, lịch sử và form giao dịch (`TestScreens`).
+4. Quản lý trạng thái bot, tách biệt với cài đặt chu kỳ cập nhật và theme (`TestBotScreen`).
+5. Nạp màu ngữ nghĩa và fallback an toàn khi thiếu key (`TestTheme`).
+6. Đăng ký đầy đủ 6 màn hình trên `MainWindow` (`TestUi`).
 
-Giao diện: đã áp theme, bảng giá, form đặt lệnh, điều khiển bot có trạng thái bật/tắt và kết quả xử lý, tổng kết danh mục và lịch sử
-lệnh. Giao diện bật qua tham số `--ui` để điểm khởi động mặc định vẫn phù hợp khi kiểm thử
-không màn hình.
-
-Xem bảng kế hoạch chi tiết ở `docs/KE_HOACH.md` và phân công ở `docs/TEAM_WORK_DIVISION.md`.
+Giao diện: hỗ trợ 6 màn hình nội bộ, chạy offline mượt mà qua tham số `--ui`.

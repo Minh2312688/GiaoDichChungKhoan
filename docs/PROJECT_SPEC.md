@@ -44,7 +44,9 @@ provider mô phỏng deterministic để kiểm thử không cần mạng.
   stop-loss được biểu diễn và kiểm tra ngưỡng.
 - Danh mục gồm tiền mặt, vị thế theo symbol và lịch sử khớp lệnh.
 - Provider mô phỏng sinh quote deterministic; adapter cho phép thay provider khác.
-- Giao diện Swing có bảng giá, form đặt lệnh, panel bot, tổng kết danh mục và theme JSON.
+- Giao diện Swing đa màn hình nội bộ (`CardLayout` & `ScreenManager`) với thanh điều hướng bên (`SidebarNavigation`), gồm 6 màn hình: Dashboard (Tổng quan), Trading (Đặt lệnh), BotScreen (Bot giao dịch), HistoryScreen (Lịch sử), PendingOrdersScreen (Lệnh chờ) và SettingsPanel (Cài đặt).
+- Quản lý phiên và timer tập trung qua `MarketSessionController` trên EDT.
+- Theme ngữ nghĩa đọc từ file JSON với các màu chức năng (`panel`, `positive`, `negative`, `warning`) và fallback an toàn.
 - Kiểm thử các mẫu, luồng tích hợp và việc nạp theme.
 
 ## Ngoài phạm vi

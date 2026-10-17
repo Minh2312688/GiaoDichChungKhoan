@@ -54,14 +54,15 @@ tối ưu hiệu năng dữ liệu lớn; khi hiển thị lên giao diện, gi�
 - [x] Observer: `IPriceObserver`, `PriceObserver`.
 - [x] Chain of Responsibility: `ValidationChain` + các validator.
 - [x] Strategy: MA/RSI/MACD/Bollinger.
-- [x] Giao diện Swing: bảng giá, form lệnh, bot, danh mục, lịch sử lệnh, theme.
-- [x] Kiểm thử: 50 test pass.
+- [x] Giao diện Swing: kiến trúc đa màn hình nội bộ (CardLayout), 6 màn hình chức năng, controller phiên tập trung và theme ngữ nghĩa.
+- [x] Kiểm thử: 62 test pass, 0 lỗi.
 
 ## 5. Mốc kiểm thử & nghiệm thu
 
 ```bash
-mvn -o -Dmaven.repo.local=.m2 test        # 50 test, 0 lỗi
+mvn -o -Dmaven.repo.local=.m2 test        # 62 test, 0 lỗi
 mvn -o -Dmaven.repo.local=.m2 exec:java    # khởi động chế độ console
+mvn -o -Dmaven.repo.local=.m2 exec:java -Dexec.args=--ui # khởi động giao diện Swing đa màn hình
 ```
 
 - Tiêu chí: build xanh, không cần mạng, mọi thao tác tiền/giá dùng `BigDecimal`.

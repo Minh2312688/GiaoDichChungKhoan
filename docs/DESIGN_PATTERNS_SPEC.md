@@ -7,8 +7,8 @@ cho mỗi thành viên. Nội dung dựa trên mã nguồn hiện tại, không 
 dẫn tái cấu trúc toàn bộ ứng dụng.
 
 Mỗi mẫu gồm: định nghĩa, mục đích, trường hợp sử dụng, vị trí trong dự án, sơ đồ lớp, cách xây
-dựng và sử dụng, lý do áp dụng, ưu điểm và hạn chế. Bốn mẫu được chọn là **Singleton** (TV1),
-**Facade** (TV2), **Observer** (TV3) và **Strategy** (TV4).
+dựng và sử dụng, lý do áp dụng, ưu điểm và hạn chế. Bốn mẫu được chọn là **Singleton** (Phan Thành Huy),
+**Facade** (Dương Văn Minh), **Observer** (Lê Thị Ánh Nhung) và **Strategy** (Lý Ngọc Thảo Nguyên).
 
 ## 2. Tóm tắt và kiến trúc dự án
 
@@ -38,23 +38,24 @@ Các nhóm mẫu khác vẫn có trong dự án, nhưng không phải trọng t�
 
 | Thành viên | Các mẫu được phân công | Mẫu được phân tích trong tài liệu |
 |---|---|---|
-| TV1 | Singleton, Factory Method | **Singleton** |
-| TV2 | Facade, Memento | **Facade** |
-| TV3 | Adapter, Observer | **Observer** |
-| TV4 | Strategy, Chain of Responsibility | **Strategy** |
+| Phan Thành Huy | Singleton, Factory Method | **Singleton** |
+| Dương Văn Minh | Facade, Memento | **Facade** |
+| Lê Thị Ánh Nhung | Adapter, Observer | **Observer** |
+| Lý Ngọc Thảo Nguyên | Strategy, Chain of Responsibility | **Strategy** |
 
 **Lưu ý về thuật ngữ:** dự án gọi `OrderFactory` là Factory Method. Tuy nhiên lớp này cung cấp
 các phương thức tạo lệnh cụ thể ngay trong một lớp nhà máy, không có Creator/Concrete Creator
 ghi đè factory method như cấu trúc GoF kinh điển. Do đó, tài liệu chọn Singleton làm ví dụ
-chính của TV1 để tránh đồng nhất hai biến thể mẫu thiết kế.
+chính của Phan Thành Huy để tránh đồng nhất hai biến thể mẫu thiết kế.
 
-## 3. Thành viên 1 — Singleton
+## 3. Thành viên 1 — Singleton (Creational Pattern)
 
 ### Định nghĩa
 
 Singleton đảm bảo một lớp chỉ có một thể hiện được chia sẻ trong một phạm vi xác định, đồng thời
-cung cấp điểm truy cập thống nhất tới thể hiện đó. Trong ứng dụng này, phạm vi được chọn là một
-tiến trình Java.
+cung cấp điểm truy cập thống nhất tới thể hiện đó. Trong ứng dụng này, thể hiện được chia sẻ
+trong cùng JVM/class loader; không nên hiểu là một thể hiện duy nhất trên nhiều tiến trình hay
+nhiều JVM.
 
 ### Trường hợp sử dụng và vị trí áp dụng
 
@@ -91,9 +92,10 @@ classDiagram
 ### Cách xây dựng và sử dụng
 
 1. Đặt constructor ở mức `private` để mã bên ngoài không thể tạo engine mới.
-2. Khởi tạo một trường `static final` duy nhất trong lớp.
+2. Khai báo trường `static final` lưu thể hiện. Cách này khởi tạo eager khi lớp được nạp; lazy
+   initialization là một lựa chọn triển khai khác, không phải điều kiện bắt buộc của Singleton.
 3. Cung cấp `getInstance()` làm điểm truy cập công khai.
-4. Chỉ dùng một thể hiện trong luồng nghiệp vụ; ở dự án này, truyền nó vào `TradingFacade`.
+4. Dùng thể hiện dùng chung trong luồng nghiệp vụ; ở dự án này, truyền nó vào `TradingFacade`.
 5. Đồng bộ hóa các thao tác đọc/ghi trạng thái dùng chung. Các thao tác nghiệp vụ của
    `ExchangeEngine` hiện được khai báo `synchronized`.
 
@@ -116,6 +118,7 @@ tình cập nhật các bản sao trạng thái khác nhau.
 - Cách truy cập đơn giản, ít phải truyền engine qua nhiều tầng khởi tạo.
 - Khởi tạo `static final` là khởi tạo sớm và an toàn khi nhiều luồng lớp cùng truy cập.
 - Các phương thức trạng thái được đồng bộ hóa để giới hạn truy cập đồng thời không nhất quán.
+- Có điểm truy cập chung mà không cần một biến toàn cục có thể gán lại.
 
 ### Nhược điểm và giới hạn
 
@@ -125,10 +128,17 @@ tình cập nhật các bản sao trạng thái khác nhau.
 - Kiểm thử có thể bị ảnh hưởng bởi trạng thái dùng chung; cần reset dữ liệu rõ ràng giữa các test.
 - Singleton không tự làm cho toàn bộ hệ thống an toàn luồng. Mọi thao tác truy cập trạng thái
   phải tuân thủ cùng quy tắc đồng bộ.
+- Vì `ExchangeEngine` là `final`, có constructor `private` và điểm truy cập tĩnh, việc thay thế
+  bằng lớp con/triển khai khác không nằm trong thiết kế hiện tại.
 - Nếu trách nhiệm của engine tăng quá nhiều, Singleton có thể che giấu việc lớp đang ôm đồm
   nhiều nhiệm vụ.
 
-## 4. Thành viên 2 — Facade
+Lazy initialization thường được nhắc tới như một lợi ích trong một số biến thể Singleton, nhưng
+không phải yêu cầu chung và không được dùng ở `ExchangeEngine`. Singleton cũng nên được cân nhắc
+theo nhu cầu thực tế; việc “không thể giao quyền sở hữu cho lớp khác” hay “phải khởi tạo chậm”
+không phải bộ ba điều kiện bắt buộc theo định nghĩa mẫu.
+
+## 4. Thành viên 2 — Facade (Structural Pattern)
 
 ### Định nghĩa
 
@@ -185,8 +195,9 @@ classDiagram
 2. Tạo lớp facade nhận các subsystem cần phối hợp qua constructor hoặc cấu hình phụ thuộc.
 3. Cung cấp phương thức có tên theo nghiệp vụ; bên trong điều phối validation, trạng thái và
    thực thi theo đúng thứ tự.
-4. Để client gọi facade thay vì tự truy cập các subsystem; chỉ mở rộng API facade khi cần thêm
-   hành động nghiệp vụ rõ ràng.
+4. Khuyến nghị các client chính như UI và bot dùng facade cho luồng nghiệp vụ thông thường.
+   Facade tạo lối vào đơn giản, nhưng không bắt buộc mọi client phải mất khả năng truy cập trực
+   tiếp subsystem khi cần chức năng chuyên biệt.
 5. Trả lỗi nghiệp vụ theo quy ước hiện có để client có thể thông báo hoặc xử lý.
 
 Ví dụ tạo facade với engine dùng chung và đặt lệnh:
@@ -216,17 +227,22 @@ các chi tiết của trading engine và validation.
 - Client có thể bị phụ thuộc quá mức vào API facade; cần giữ phương thức theo mục tiêu nghiệp vụ,
   không biến facade thành bản sao toàn bộ API subsystem.
 - Facade không thay thế validation, quyền truy cập hay quy tắc nghiệp vụ trong subsystem.
+- Nếu facade bị xem là cổng duy nhất và không cung cấp thao tác nâng cao, người dùng chuyên sâu
+  có thể không truy cập được độ linh hoạt của subsystem. Đây là quyết định API của ứng dụng,
+  không phải yêu cầu bắt buộc của mẫu Facade.
 - Trong mã hiện tại, `matchPending` giữ lệnh trong hàng chờ khi một lệnh kích hoạt không qua
   validation; hành vi này là chính sách cụ thể của luồng lệnh chờ, không phải thuộc tính bắt buộc
   của mẫu Facade.
 
-## 5. Thành viên 3 — Observer
+## 5. Thành viên 3 — Observer (Behavioral Pattern)
 
 ### Định nghĩa
 
 Observer định nghĩa quan hệ một-nhiều giữa đối tượng phát sự kiện (Subject) và các đối tượng
 đăng ký nhận sự kiện (Observers). Khi trạng thái hoặc dữ liệu mới xuất hiện, Subject gửi thông
 báo để các Observer tự phản ứng mà không cần client phát sự kiện biết chi tiết từng subscriber.
+Trong dự án, `MarketAdapter` là publisher/Subject của sự kiện quote; nó không lưu mô hình giá
+trung tâm mà lấy quote từ provider rồi đẩy quote đó tới các Observer theo mô hình push.
 
 ### Trường hợp sử dụng và vị trí áp dụng
 
@@ -274,12 +290,13 @@ classDiagram
 
 ### Cách xây dựng và sử dụng
 
-1. Xác định dữ liệu sự kiện, ở đây là `Quote`, và tạo interface observer với phương thức nhận
-   dữ liệu như `onPrice(Quote)`.
-2. Cho Subject quản lý danh sách observer và cung cấp thao tác đăng ký.
-3. Khi có quote mới, Subject lấy dữ liệu và phát thông báo đến các observer đã đăng ký.
-4. Tạo observer cụ thể bằng callback hoặc lớp riêng; để subscriber xử lý sự kiện mà không đưa
-   logic giao diện vào provider dữ liệu.
+1. Tách nguồn dữ liệu/sự kiện khỏi các phần tiêu thụ nó; ở đây dữ liệu sự kiện là `Quote`.
+2. Tạo interface observer với phương thức nhận sự kiện như `onPrice(Quote)`; không bắt buộc
+   phải dùng một lớp cơ sở trừu tượng hay kế thừa.
+3. Cho Subject quản lý danh sách observer và cung cấp thao tác đăng ký. Cần thêm thao tác hủy
+   đăng ký nếu vòng đời subscriber yêu cầu.
+4. Khi có quote mới, phát sự kiện theo mô hình push (đưa quote trong lời gọi) hoặc pull (observer
+   tự truy vấn Subject); chọn cách phù hợp với nhu cầu dữ liệu và hiệu năng.
 5. Đăng ký observer lúc khởi tạo phiên; trong ứng dụng, `MarketSessionController` làm việc này.
 
 Ví dụ rút gọn theo API hiện có:
@@ -302,6 +319,7 @@ phải biết danh sách cụ thể của chúng.
 - Có thể thêm subscriber mới mà không phải thêm nhánh xử lý theo từng subscriber vào provider.
 - Hợp với mô hình cập nhật định kỳ và các sự kiện giá.
 - `IPriceObserver` tạo hợp đồng rõ ràng; `PriceObserver` hiện thực hóa hợp đồng bằng `Consumer`.
+- Cho phép đăng ký observer trong thời gian chạy.
 
 ### Nhược điểm và giới hạn
 
@@ -312,9 +330,12 @@ phải biết danh sách cụ thể của chúng.
   sách cô lập lỗi hoặc hàng đợi sự kiện.
 - Trong triển khai hiện tại, `refresh` gọi observer tuần tự trong cùng luồng; đây không phải hệ
   thống sự kiện bất đồng bộ.
+- Push gửi toàn bộ quote có thể làm subscriber phụ thuộc vào cấu trúc dữ liệu sự kiện; pull giảm
+  lượng dữ liệu đẩy nhưng subscriber phải truy vấn Subject và có thể phát sinh truy vấn thừa.
+- Cần kiểm soát tần suất sự kiện để tránh subscriber bị quá tải khi quote cập nhật dồn dập.
 - Không nên để observer phụ thuộc ngầm vào nhau; callback cần có trách nhiệm nhỏ và dễ kiểm thử.
 
-## 6. Thành viên 4 — Strategy
+## 6. Thành viên 4 — Strategy (Behavioral Pattern)
 
 ### Định nghĩa
 
@@ -396,6 +417,8 @@ cách phân tích. Strategy giữ phần tính tín hiệu riêng khỏi quy tr�
 - Mỗi strategy độc lập, dễ kiểm thử với chuỗi dữ liệu đầu vào cụ thể.
 - Thêm chiến lược mới thường không yêu cầu sửa luồng điều phối của `BotController`.
 - Tránh chuỗi `if/else` lớn trong client để phân biệt từng thuật toán.
+- Hỗ trợ nguyên tắc Open-Closed: có thể bổ sung một concrete strategy mà không phải viết lại
+  client điều phối, miễn là strategy tuân thủ interface chung.
 
 ### Nhược điểm và giới hạn
 
@@ -407,6 +430,9 @@ cách phân tích. Strategy giữ phần tính tín hiệu riêng khỏi quy tr�
   và overload theo RSI; cần giữ hợp đồng nhất quán khi mở rộng.
 - Strategy chỉ sinh tín hiệu; nó không đảm bảo lệnh phù hợp số dư/vị thế. Validation và thực thi
   vẫn thuộc luồng facade/engine.
+- Có thể chia sẻ đối tượng Strategy như Flyweight chỉ khi trạng thái của nó cho phép dùng chung
+  an toàn; đây không phải ưu điểm tự động của Strategy. Các strategy có tham số như chu kỳ hoặc
+  ngưỡng thường cần cấu hình riêng.
 
 ## 7. Xây dựng, chạy và kiểm chứng dự án
 

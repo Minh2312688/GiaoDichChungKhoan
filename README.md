@@ -15,8 +15,16 @@ Thư viện phụ thuộc đã có sẵn trong `./.m2` nên build được khôn
 ```bash
 mvn -o -Dmaven.repo.local=.m2 test       # biên dịch + chạy toàn bộ kiểm thử
 mvn -o -Dmaven.repo.local=.m2 exec:java  # chạy ứng dụng (chế độ console)
-mvn -o -Dmaven.repo.local=.m2 exec:java -Dexec.args=--ui  # mở giao diện Swing
+mvn -o -Dmaven.repo.local=.m2 exec:java -Dexec.args=--ui  # mở giao diện Swing đa màn hình
 ```
+
+Giao diện Swing hỗ trợ điều hướng nhiều màn hình nội bộ (`CardLayout` & `ScreenManager`) với thanh bên (`SidebarNavigation`) và điều phối phiên giao dịch tập trung (`MarketSessionController`):
+- **Tổng quan (Dashboard):** Bảng giá trực tiếp, tóm tắt tiền mặt, vị thế, số lệnh chờ và trạng thái bot.
+- **Đặt lệnh (Trading):** Form đặt lệnh với validation chuỗi trách nhiệm.
+- **Bot giao dịch (Bot):** Cấu hình chiến lược (MA, RSI, MACD, Bollinger Bands), bật/tắt và hiển thị RSI.
+- **Lịch sử (History):** Xem các giao dịch đã khớp.
+- **Lệnh chờ (Pending Orders):** Danh sách lệnh LIMIT / STOP-LOSS đang chờ khớp.
+- **Cài đặt (Settings):** Tùy chỉnh theme giao diện và chu kỳ phiên giao dịch.
 
 > Không dùng `clean` khi offline: plugin `maven-clean-plugin` cần một phụ thuộc chưa có
 > trong cache. Trình biên dịch vẫn tự dịch lại mọi tệp nguồn đã thay đổi.

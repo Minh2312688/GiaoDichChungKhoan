@@ -2,6 +2,7 @@ package com.tradingsimulator;
 
 import com.tradingsimulator.core.ExchangeEngine;
 import com.tradingsimulator.core.TradingFacade;
+import com.tradingsimulator.ui.MainWindow;
 import com.tradingsimulator.ui.components.*;
 import com.tradingsimulator.model.*;
 import org.junit.jupiter.api.Test;
@@ -70,5 +71,21 @@ class TestUi {
     assertTrue(panel.isBotEnabled());
     assertEquals("Bot: BẬT", panel.getBotStateLabel().getText());
     assertEquals("Đã đặt lệnh", panel.getBotStatusLabel().getText());
+  }
+
+  @Test
+  void mainWindowRegistersAllSixScreensWithoutChildFrames() {
+    MainWindow window = new MainWindow();
+    assertNotNull(window.getScreenManager());
+    for (com.tradingsimulator.ui.navigation.ScreenId id : com.tradingsimulator.ui.navigation.ScreenId.values()) {
+      assertNotNull(window.getScreenManager().getComponent(id), "Screen " + id + " should be registered");
+    }
+    int initialWindows = java.awt.Window.getWindows().length;
+    for (com.tradingsimulator.ui.navigation.ScreenId id : com.tradingsimulator.ui.navigation.ScreenId.values()) {
+      window.getScreenManager().show(id);
+      assertEquals(id, window.getScreenManager().currentScreen());
+    }
+    assertEquals(initialWindows, java.awt.Window.getWindows().length);
+    window.dispose();
   }
 }

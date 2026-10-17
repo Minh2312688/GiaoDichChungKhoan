@@ -103,21 +103,24 @@ Lazy initialization là một biến thể có thể chọn khi cần, không ph
 
 **Nội dung trên slide**
 
+> Sơ đồ lược bỏ các API không trực tiếp giải thích Singleton để dễ theo dõi khi thuyết trình.
+
 ```mermaid
 classDiagram
     class ExchangeEngine {
-        -static ExchangeEngine INSTANCE
+        -static final ExchangeEngine INSTANCE
+        -BigDecimal cash
+        -Map~String, Position~ positions
+        -List~Trade~ trades
+        -Map~String, Quote~ quotes
         -ExchangeEngine()
-        +static getInstance() ExchangeEngine
-        +reset(initialCash)
-        +execute(order) Trade
-        +updateQuote(quote)
+        +static ExchangeEngine getInstance()
+        +void reset(BigDecimal initialCash)
+        +Trade execute(Order order)
     }
     class Main
-    class MainWindow
     class TradingFacade
     Main ..> ExchangeEngine : getInstance()
-    MainWindow ..> ExchangeEngine : getInstance()
     TradingFacade --> ExchangeEngine : giữ tham chiếu
 ```
 
@@ -169,6 +172,9 @@ nhất; cần cân nhắc nhu cầu linh hoạt của client chuyên sâu.
 
 **Nội dung trên slide**
 
+> Chỉ giữ API và subsystem liên quan trực tiếp tới luồng Facade; đây không phải danh sách đầy đủ
+> mọi phương thức của các lớp.
+
 ```mermaid
 classDiagram
     class TradingFacade {
@@ -176,27 +182,38 @@ classDiagram
         -ValidationChain validation
         -OrderBook orderBook
         -MarketAdapter adapter
-        -IBotStrategy strategy
-        +submitMarketOrder(symbol, side, quantity) Trade
-        +submit(order) Trade
-        +matchPending(symbol) List~Trade~
-        +setStrategy(strategy)
-        +strategySignal(prices) OrderSide
+        +TradingFacade(ExchangeEngine engine)
+        +void setMarketAdapter(MarketAdapter adapter)
+        +Trade submitMarketOrder(String symbol, OrderSide side, int quantity)
+        +Trade submit(Order order)
+        +void submitPending(Order order)
+        +List~Trade~ matchPending(String symbol)
     }
     class SwingUI
     class BotController
-    class ExchangeEngine
-    class ValidationChain
-    class OrderBook
-    class MarketAdapter
-    class IBotStrategy
+    class ExchangeEngine {
+        +Trade execute(Order order)
+        +BigDecimal cash()
+        +Position position(String symbol)
+    }
+    class ValidationChain {
+        +static ValidationChain defaultChain()
+        +void validate(Order order, BigDecimal cash, int position, BigDecimal marketPrice)
+    }
+    class OrderBook {
+        +void add(Order order)
+        +List~Order~ triggered(Quote quote)
+        +void remove(Order order)
+    }
+    class MarketAdapter {
+        +Quote getQuote(String symbol)
+    }
     SwingUI --> TradingFacade : gọi nghiệp vụ
-    BotController --> TradingFacade : hỏi tín hiệu/đặt lệnh
+    BotController --> TradingFacade : gửi yêu cầu giao dịch
     TradingFacade --> ExchangeEngine : truy vấn/thực thi
     TradingFacade --> ValidationChain : kiểm tra lệnh
     TradingFacade --> OrderBook : quản lý lệnh chờ
     TradingFacade --> MarketAdapter : lấy quote
-    TradingFacade --> IBotStrategy : tính tín hiệu
 ```
 
 **Ghi chú thuyết trình**
@@ -248,30 +265,35 @@ dùng push, không yêu cầu Observer truy vấn Subject để lấy quote.
 
 **Nội dung trên slide**
 
+> Sơ đồ tập trung vào luồng phát quote và đăng ký observer; các thuộc tính khác của session được
+> lược bỏ.
+
 ```mermaid
 classDiagram
     class MarketAdapter {
         -IMarketDataProvider provider
         -List~IPriceObserver~ observers
-        +getQuote(symbol) Quote
-        +addObserver(observer)
-        +refresh(symbol) Quote
+        +MarketAdapter(IMarketDataProvider provider)
+        +void addObserver(IPriceObserver observer)
+        +Quote refresh(String symbol)
     }
     class IMarketDataProvider {
         <<interface>>
-        +fetch(symbol) Quote
+        +Quote fetch(String symbol)
     }
     class IPriceObserver {
         <<interface>>
-        +onPrice(quote)
+        +void onPrice(Quote quote)
     }
     class PriceObserver {
         -Consumer~Quote~ consumer
-        +onPrice(quote)
+        +PriceObserver(Consumer~Quote~ consumer)
+        +void onPrice(Quote quote)
     }
     class MarketSessionController {
-        +refreshOnce()
-        -handleQuote(quote)
+        +MarketSessionController(TradingFacade facade, MarketAdapter adapter, Set~String~ symbols, BotController botController)
+        +void refreshOnce()
+        -void handleQuote(Quote quote)
     }
     MarketAdapter --> IMarketDataProvider : lấy quote
     MarketAdapter o--> IPriceObserver : thông báo push
@@ -330,28 +352,51 @@ phép dùng chung an toàn; không phải mọi Strategy đều có thể chia s
 
 **Nội dung trên slide**
 
+> Chỉ thể hiện hợp đồng Strategy, cấu hình thuật toán và context sử dụng; bỏ các chi tiết bot
+> không cần để giải thích cách thay thế thuật toán.
+
 ```mermaid
 classDiagram
     class IBotStrategy {
         <<interface>>
-        +signal(prices) OrderSide
-        +signal(rsi) OrderSide
+        +OrderSide signal(List~BigDecimal~ prices)
+        +OrderSide signal(double rsi)
     }
     class BaseStrategy {
         <<abstract>>
         #period
+        #BaseStrategy(int period)
     }
-    class MovingAverageCrossoverStrategy
-    class RsiThresholdStrategy
-    class MacdStrategy
-    class BollingerBandsStrategy
+    class MovingAverageCrossoverStrategy {
+        +MovingAverageCrossoverStrategy(int period)
+        +OrderSide signal(List~BigDecimal~ prices)
+    }
+    class RsiThresholdStrategy {
+        -double low
+        -double high
+        +RsiThresholdStrategy(int period, double low, double high)
+        +OrderSide signal(List~BigDecimal~ prices)
+        +OrderSide signal(double rsi)
+    }
+    class MacdStrategy {
+        -int shortPeriod
+        -int longPeriod
+        -int signalPeriod
+        +MacdStrategy(int shortPeriod, int longPeriod, int signalPeriod)
+        +OrderSide signal(List~BigDecimal~ prices)
+    }
+    class BollingerBandsStrategy {
+        -double multiplier
+        +BollingerBandsStrategy(int period, double multiplier)
+        +OrderSide signal(List~BigDecimal~ prices)
+    }
     class TradingFacade {
         -IBotStrategy strategy
-        +setStrategy(strategy)
-        +strategySignal(prices) OrderSide
+        +void setStrategy(IBotStrategy strategy)
+        +OrderSide strategySignal(List~BigDecimal~ prices)
     }
     class BotController {
-        +onQuote(quote) Optional~Trade~
+        +Optional~Trade~ onQuote(Quote quote)
     }
     BaseStrategy ..|> IBotStrategy
     MovingAverageCrossoverStrategy --|> BaseStrategy

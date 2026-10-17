@@ -48,6 +48,26 @@ các phương thức tạo lệnh cụ thể ngay trong một lớp nhà máy, k
 ghi đè factory method như cấu trúc GoF kinh điển. Do đó, tài liệu chọn Singleton làm ví dụ
 chính của Phan Thành Huy để tránh đồng nhất hai biến thể mẫu thiết kế.
 
+### Đường dẫn mã nguồn theo từng mẫu thiết kế
+
+Các đường dẫn dưới đây tính từ **thư mục gốc dự án** `GiaoDichChungKhoan/`. Mỗi dòng chỉ rõ
+các lớp cần mở để lần theo đúng mẫu; cột kiểm thử gợi ý nơi xem ví dụ sử dụng và hành vi.
+
+| Mẫu thiết kế | Thành viên | Mã nguồn cần xem | Kiểm thử tham khảo |
+|---|---|---|---|
+| **Singleton** | Phan Thành Huy | `src/main/java/com/tradingsimulator/core/ExchangeEngine.java` — lớp Singleton; `src/main/java/com/tradingsimulator/Main.java` — điểm lấy instance khi khởi chạy | `src/test/java/com/tradingsimulator/TestCore.java` |
+| **Factory Method** | Phan Thành Huy | `src/main/java/com/tradingsimulator/tradingengine/OrderFactory.java` — tạo Market/Limit/Stop-loss order; `src/main/java/com/tradingsimulator/model/Order.java` — sản phẩm được tạo; `src/main/java/com/tradingsimulator/tradingengine/OrderBook.java` — quản lý lệnh chờ | `src/test/java/com/tradingsimulator/TestPatterns.java`; `src/test/java/com/tradingsimulator/TestOrderBook.java` |
+| **Facade** | Dương Văn Minh | `src/main/java/com/tradingsimulator/core/TradingFacade.java` — API nghiệp vụ điều phối; `src/main/java/com/tradingsimulator/core/ExchangeEngine.java`; `src/main/java/com/tradingsimulator/validationandportfolio/ValidationChain.java`; `src/main/java/com/tradingsimulator/tradingengine/OrderBook.java` — các subsystem được facade dùng | `src/test/java/com/tradingsimulator/TestCore.java`; `src/test/java/com/tradingsimulator/TestIntegration.java` |
+| **Memento** | Dương Văn Minh | `src/main/java/com/tradingsimulator/validationandportfolio/PortfolioMemento.java` — snapshot; `src/main/java/com/tradingsimulator/core/TradingFacade.java` — `snapshot()`/`restore()`; `src/main/java/com/tradingsimulator/persistence/PortfolioRepository.java` — lưu/đọc trạng thái | `src/test/java/com/tradingsimulator/TestPersistence.java`; `src/test/java/com/tradingsimulator/TestIntegration.java` |
+| **Adapter** | Lê Thị Ánh Nhung | `src/main/java/com/tradingsimulator/marketdata/adapters/IMarketDataProvider.java` — giao diện provider; `src/main/java/com/tradingsimulator/marketdata/adapters/MarketAdapter.java` — adapter; `src/main/java/com/tradingsimulator/marketdata/adapters/MockMarketDataProvider.java`; `src/main/java/com/tradingsimulator/marketdata/adapters/CsvMarketDataProvider.java`; `src/main/java/com/tradingsimulator/marketdata/adapters/RandomWalkMarketDataProvider.java` — các provider cụ thể | `src/test/java/com/tradingsimulator/TestMarketData.java`; `src/test/java/com/tradingsimulator/TestPatterns.java` |
+| **Observer** | Lê Thị Ánh Nhung | `src/main/java/com/tradingsimulator/marketdata/observers/IPriceObserver.java` — observer contract; `src/main/java/com/tradingsimulator/marketdata/observers/PriceObserver.java` — observer cụ thể; `src/main/java/com/tradingsimulator/marketdata/adapters/MarketAdapter.java` — publisher; `src/main/java/com/tradingsimulator/ui/session/MarketSessionController.java` — đăng ký và xử lý quote | `src/test/java/com/tradingsimulator/TestPatterns.java`; `src/test/java/com/tradingsimulator/TestMarketSessionController.java` |
+| **Strategy** | Lý Ngọc Thảo Nguyên | `src/main/java/com/tradingsimulator/tradingengine/botstrategies/IBotStrategy.java` — strategy contract; `src/main/java/com/tradingsimulator/tradingengine/botstrategies/BaseStrategy.java`; `src/main/java/com/tradingsimulator/tradingengine/botstrategies/MovingAverageCrossoverStrategy.java`; `src/main/java/com/tradingsimulator/tradingengine/botstrategies/RsiThresholdStrategy.java`; `src/main/java/com/tradingsimulator/tradingengine/botstrategies/MacdStrategy.java`; `src/main/java/com/tradingsimulator/tradingengine/botstrategies/BollingerBandsStrategy.java` — các strategy cụ thể | `src/test/java/com/tradingsimulator/TestStrategies.java`; `src/test/java/com/tradingsimulator/TestBotController.java` |
+| **Chain of Responsibility** | Lý Ngọc Thảo Nguyên | `src/main/java/com/tradingsimulator/validationandportfolio/IValidator.java` — handler contract; `src/main/java/com/tradingsimulator/validationandportfolio/ValidationChain.java` — chuỗi; `src/main/java/com/tradingsimulator/validationandportfolio/BalanceValidator.java`; `src/main/java/com/tradingsimulator/validationandportfolio/PositionValidator.java`; `src/main/java/com/tradingsimulator/validationandportfolio/QuantityLimitValidator.java`; `src/main/java/com/tradingsimulator/validationandportfolio/PriceRangeValidator.java` — các handler cụ thể | `src/test/java/com/tradingsimulator/TestValidation.java`; `src/test/java/com/tradingsimulator/TestPatterns.java` |
+
+**Lưu ý:** bảng trên phản ánh cách dự án phân công và đặt tên hiện tại. Riêng `OrderFactory` được
+gọi là Factory Method trong tài liệu nhóm, nhưng cấu trúc mã gần với Simple Factory hơn GoF Factory
+Method kinh điển; xem phân tích thuật ngữ ở trên trước khi thuyết trình mẫu này.
+
 ## 3. Thành viên 1 — Singleton (Creational Pattern)
 
 ### Định nghĩa

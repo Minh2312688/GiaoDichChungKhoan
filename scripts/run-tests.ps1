@@ -1,10 +1,15 @@
 # Runs the offline Maven test suite using the project-local repository.
 #
-# Usage:  powershell -ExecutionPolicy Bypass -File scripts/run-tests.ps1
 $ErrorActionPreference = 'Stop'
 $repo = Resolve-Path (Join-Path $PSScriptRoot '..')
 Push-Location $repo
 try {
+  $localMvn = Join-Path $repo '.tools\apache-maven-3.9.9\bin\mvn.cmd'
+  if (Test-Path $localMvn) {
+    & $localMvn -o -B '-Dmaven.repo.local=.m2' test
+    exit $LASTEXITCODE
+  }
+
   if (Get-Command mvn -ErrorAction SilentlyContinue) {
     mvn -o -Dmaven.repo.local=.m2 test
     exit $LASTEXITCODE

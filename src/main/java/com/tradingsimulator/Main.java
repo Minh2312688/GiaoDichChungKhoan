@@ -18,8 +18,10 @@ public final class Main {
   public static void main(String[] args) {
     System.out.println("Trình mô phỏng giao dịch - phiên bản MVP offline");
     ExchangeEngine.getInstance().reset(new BigDecimal("10000"));
-    if (Arrays.asList(args).contains("--ui") && !GraphicsEnvironment.isHeadless()) {
-      SwingUtilities.invokeLater(() -> new MainWindow().setVisible(true));
+    
+    // Bỏ điều kiện if kiểm tra "--ui", chỉ giữ lại check môi trường đồ họa (headless)
+    if (!GraphicsEnvironment.isHeadless()) {
+        SwingUtilities.invokeLater(() -> new MainWindow().setVisible(true));
     }
   }
 }

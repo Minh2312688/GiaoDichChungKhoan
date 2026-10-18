@@ -41,10 +41,10 @@ Quy ước riêng cho bot: toàn bộ technical indicators (MA, RSI, MACD, Bolli
 
 | Thành viên | Mẫu thiết kế | Module chính |
 |---|---|---|
-| Thành viên 1 | **Singleton**, **Factory Method** | `core/ExchangeEngine`, `tradingengine/OrderFactory`, `tradingengine/OrderBook` |
-| Thành viên 2 | **Facade**, **Memento** | `core/TradingFacade`, `validationandportfolio/PortfolioMemento`, `persistence/*`, `reporting/*` |
-| Thành viên 3 | **Adapter**, **Observer** | `marketdata/adapters/*`, `marketdata/observers/*` |
-| Thành viên 4 | **Strategy**, **Chain of Responsibility** | `tradingengine/botstrategies/*`, `validationandportfolio/ValidationChain` + các validator |
+| Phan Thành Huy | **Singleton**, **Factory Method** | `core/ExchangeEngine`, `tradingengine/OrderFactory`, `tradingengine/OrderBook` |
+| Dương Văn Minh | **Facade**, **Memento** | `core/TradingFacade`, `validationandportfolio/PortfolioMemento`, `persistence/*`, `reporting/*` |
+| Lê Thị Ánh Nhung | **Adapter**, **Observer** | `marketdata/adapters/*`, `marketdata/observers/*` |
+| Lý Ngọc Thảo Nguyên | **Strategy**, **Chain of Responsibility** | `tradingengine/botstrategies/*`, `validationandportfolio/ValidationChain` + các validator |
 
 Chi tiết xem `docs/TEAM_WORK_DIVISION.md` (phân công) và `docs/KE_HOACH.md` (bảng kế hoạch).
 Quy ước làm việc xem `CONTRIBUTING.md`.

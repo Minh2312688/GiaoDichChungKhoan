@@ -37,7 +37,8 @@ Nhóm có **4 thành viên**. Chương trình dùng đúng **8 mẫu thiết k�
   bảng giá; chỉ có một thực thể qua `getInstance()`.
 - **Factory Method:** `OrderFactory` tạo 3 loại lệnh (`market`, `limit`, `stopLoss`).
   `OrderBook` quản lý các lệnh `LIMIT`/`STOP_LOSS` chờ khớp và quyết định thời điểm kích hoạt.
-- Phần UI phụ trách: `OrderFormPanel` (form đặt lệnh dùng factory).
+- Phần UI phụ trách: `OrderFormPanel` (chọn mã từ danh sách thị trường; tạo lệnh MARKET, LIMIT
+  và STOP-LOSS qua factory; lệnh chờ được theo dõi trong `PendingOrdersScreen`).
 - Mở rộng gợi ý: thêm loại lệnh mới, ưu tiên khớp theo giá – thời gian, partial fill.
 
 ### Thành viên 2 – Facade & Memento

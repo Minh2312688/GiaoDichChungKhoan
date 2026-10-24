@@ -7,6 +7,8 @@ import com.tradingsimulator.ui.components.*;
 import com.tradingsimulator.model.*;
 import org.junit.jupiter.api.Test;
 import javax.swing.*;
+import java.math.BigDecimal;
+import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** Chủ sở hữu: giao diện dùng chung (Thành viên 1, 3). */
@@ -23,8 +25,7 @@ class TestUi {
   }
 
   @Test void orderFormEmitsOrderInput(){
-    OrderFormPanel panel=new OrderFormPanel();
-    panel.setSymbol("ABC");
+    OrderFormPanel panel=new OrderFormPanel(List.of("ABC", "XYZ"));
     panel.setQuantity("5");
     assertEquals("ABC", panel.getSymbol());
     assertEquals(5, panel.getQuantity());
@@ -33,8 +34,7 @@ class TestUi {
   }
 
   @Test void orderFormCreatesMarketOrderFromInput(){
-    OrderFormPanel panel=new OrderFormPanel();
-    panel.setSymbol("ABC");
+    OrderFormPanel panel=new OrderFormPanel(List.of("ABC"));
     panel.setQuantity("5");
     panel.setSide(OrderSide.SELL);
     Order order=panel.createOrder();
@@ -42,6 +42,40 @@ class TestUi {
     assertEquals(OrderSide.SELL, order.side());
     assertEquals(OrderType.MARKET, order.type());
     assertEquals(5, order.quantity());
+  }
+
+  @Test void orderFormCreatesLimitAndStopLossOrders(){
+    OrderFormPanel panel=new OrderFormPanel(List.of("ABC"));
+    panel.setQuantity("5");
+    panel.setPrice("9.50");
+
+    panel.setOrderType(OrderType.LIMIT);
+    Order limitOrder=panel.createOrder();
+    assertEquals(OrderType.LIMIT, limitOrder.type());
+    assertEquals(new BigDecimal("9.50"), limitOrder.price());
+    assertTrue(panel.getPriceField().isEnabled());
+
+    panel.setOrderType(OrderType.STOP_LOSS);
+    Order stopLossOrder=panel.createOrder();
+    assertEquals(OrderType.STOP_LOSS, stopLossOrder.type());
+    assertEquals(new BigDecimal("9.50"), stopLossOrder.price());
+
+    panel.setOrderType(OrderType.MARKET);
+    assertEquals(OrderType.MARKET, panel.createOrder().type());
+    assertFalse(panel.getPriceField().isEnabled());
+  }
+
+  @Test void orderFormUsesAvailableSymbolsAndQueuesNonMarketOrders(){
+    OrderFormPanel panel=new OrderFormPanel(List.of("XYZ", "ABC"));
+    assertEquals("ABC", panel.getSymbol());
+    panel.setSymbol("XYZ");
+    assertEquals("XYZ", panel.getSymbol());
+
+    panel.setOrderType(OrderType.LIMIT);
+    panel.setPrice("10.00");
+    panel.onSubmit(order -> assertEquals(OrderType.LIMIT, order.type()));
+    panel.getSubmitButton().doClick();
+    assertEquals("Đã thêm lệnh chờ", panel.getStatusLabel().getText());
   }
 
   @Test void botPanelDisplaysFormattedRsi(){

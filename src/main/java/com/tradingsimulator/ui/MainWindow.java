@@ -4,6 +4,7 @@ import com.tradingsimulator.core.ExchangeEngine;
 import com.tradingsimulator.core.TradingFacade;
 import com.tradingsimulator.marketdata.adapters.MarketAdapter;
 import com.tradingsimulator.marketdata.adapters.RandomWalkMarketDataProvider;
+import com.tradingsimulator.model.OrderType;
 import com.tradingsimulator.model.Quote;
 import com.tradingsimulator.ui.bot.BotController;
 import com.tradingsimulator.ui.navigation.ScreenId;
@@ -74,7 +75,7 @@ public final class MainWindow extends JFrame {
 
     // 3. Khởi tạo các màn hình
     this.dashboardPanel = new DashboardPanel();
-    this.tradingPanel = new TradingPanel();
+    this.tradingPanel = new TradingPanel(symbols);
     this.botScreen = new BotScreen(facade);
     this.historyScreen = new HistoryScreen();
     this.pendingOrdersScreen = new PendingOrdersScreen();
@@ -112,12 +113,12 @@ public final class MainWindow extends JFrame {
 
     // 6. Xử lý đặt lệnh từ form
     tradingPanel.getOrderForm().onSubmit(order -> {
-      try {
+      if (order.type() == OrderType.MARKET) {
         facade.submit(order);
-        refreshAllScreens();
-      } catch (IllegalArgumentException error) {
-        tradingPanel.getOrderForm().setStatus(error.getMessage());
+      } else {
+        facade.submitPending(order);
       }
+      refreshAllScreens();
     });
 
     // 7. Lắng nghe session update từ controller

@@ -10,7 +10,7 @@ import java.util.List;
 
 public class PendingOrdersScreen extends JPanel {
     private final DefaultTableModel model = new DefaultTableModel(
-            new Object[]{"Mã", "Chiều", "Loại lệnh", "Khối lượng", "Giá đặt", "Trạng thái"}, 0
+            new Object[]{"Mã", "Chiều", "Loại lệnh", "Số lượng", "Giá đặt", "Trạng thái"}, 0
     ) {
         @Override
         public boolean isCellEditable(int row, int column) {

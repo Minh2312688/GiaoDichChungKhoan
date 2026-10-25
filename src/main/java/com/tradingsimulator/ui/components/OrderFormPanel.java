@@ -63,7 +63,7 @@ public final class OrderFormPanel extends JPanel {
     addRow("Mã chứng khoán", symbolBox, c, 1);
     addRow("Chiều", sideBox, c, 2);
     addRow("Loại lệnh", typeBox, c, 3);
-    addRow("Khối lượng", quantityField, c, 4);
+    addRow("Số lượng", quantityField, c, 4);
     addRow("Giá điều kiện", priceField, c, 5);
     addRow("", submitButton, c, 6);
     addRow("Trạng thái", statusLabel, c, 7);

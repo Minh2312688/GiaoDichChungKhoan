@@ -47,7 +47,7 @@ public final class BotController {
       throw new IllegalArgumentException("Trading facade không được để trống");
     }
     if (maxHistorySize < 1 || orderQuantity < 1) {
-      throw new IllegalArgumentException("Giới hạn lịch sử và khối lượng lệnh phải dương");
+      throw new IllegalArgumentException("Giới hạn lịch sử và Số lượng lệnh phải dương");
     }
     this.facade = facade;
     this.maxHistorySize = maxHistorySize;

@@ -16,7 +16,7 @@ import javax.swing.table.DefaultTableModel;
  */
 public final class OrderHistoryPanel extends JPanel {
   private final DefaultTableModel model = new DefaultTableModel(
-      new Object[] {"Thời gian", "Mã", "Chiều", "Khối lượng", "Giá", "Tổng tiền"}, 0) {
+      new Object[] {"Thời gian", "Mã", "Chiều", "Số lượng", "Giá", "Tổng tiền"}, 0) {
     @Override
     public boolean isCellEditable(int row, int column) {
       return false;

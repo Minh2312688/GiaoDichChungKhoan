@@ -1,14 +1,18 @@
 package com.tradingsimulator.ui.screens;
 
+import com.tradingsimulator.model.Position;
 import com.tradingsimulator.model.Quote;
+import com.tradingsimulator.ui.components.PortfolioPanel;
 import com.tradingsimulator.ui.components.PriceBoardPanel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import java.util.Map;
 
 public class DashboardPanel extends JPanel {
     private final PriceBoardPanel priceBoard;
+    private final PortfolioPanel portfolioPanel;
     private final JLabel cashLabel;
     private final JLabel positionsLabel;
     private final JLabel pendingLabel;
@@ -19,7 +23,13 @@ public class DashboardPanel extends JPanel {
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         priceBoard = new PriceBoardPanel();
-        add(priceBoard, BorderLayout.CENTER);
+        portfolioPanel = new PortfolioPanel();
+        JSplitPane marketAndPortfolio = new JSplitPane(
+                JSplitPane.VERTICAL_SPLIT, priceBoard, portfolioPanel);
+        marketAndPortfolio.setResizeWeight(0.58);
+        marketAndPortfolio.setContinuousLayout(true);
+        marketAndPortfolio.setBorder(null);
+        add(marketAndPortfolio, BorderLayout.CENTER);
 
         JPanel summaryPanel = new JPanel();
         summaryPanel.setLayout(new BoxLayout(summaryPanel, BoxLayout.Y_AXIS));
@@ -29,7 +39,7 @@ public class DashboardPanel extends JPanel {
         ));
 
         cashLabel = new JLabel("Tiền mặt: -");
-        positionsLabel = new JLabel("Vị thế: -");
+        positionsLabel = new JLabel("Mã đang nắm giữ: 0");
         pendingLabel = new JLabel("Lệnh chờ: 0");
         botStatusLabel = new JLabel("Trạng thái bot: TẮT");
 
@@ -60,8 +70,12 @@ public class DashboardPanel extends JPanel {
         cashLabel.setText("Tiền mặt: " + cash);
     }
 
-    public void showPositions(String positions) {
-        positionsLabel.setText("Vị thế: " + positions);
+    public void showPositions(Map<String, Position> positions) {
+        portfolioPanel.showPositions(positions);
+        long heldSymbols = positions.values().stream()
+                .filter(position -> position.quantity() > 0)
+                .count();
+        positionsLabel.setText("Mã đang nắm giữ: " + heldSymbols);
     }
 
     public void showPendingCount(int count) {
@@ -74,6 +88,10 @@ public class DashboardPanel extends JPanel {
 
     public PriceBoardPanel getPriceBoard() {
         return priceBoard;
+    }
+
+    public PortfolioPanel getPortfolioPanel() {
+        return portfolioPanel;
     }
 
     public JLabel getCashLabel() {

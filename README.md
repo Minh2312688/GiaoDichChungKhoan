@@ -19,7 +19,7 @@ mvn -o -Dmaven.repo.local=.m2 exec:java -Dexec.args=--ui  # mở giao diện Swi
 ```
 
 Giao diện Swing hỗ trợ điều hướng nhiều màn hình nội bộ (`CardLayout` & `ScreenManager`) với thanh bên (`SidebarNavigation`) và điều phối phiên giao dịch tập trung (`MarketSessionController`):
-- **Tổng quan (Dashboard):** Bảng giá trực tiếp, tóm tắt tiền mặt, vị thế, số lệnh chờ và trạng thái bot.
+- **Tổng quan (Dashboard):** Bảng giá trực tiếp, tiền mặt, bảng danh mục với số lượng và giá vốn trung bình của từng mã, số lệnh chờ và trạng thái bot.
 - **Đặt lệnh (Trading):** Form đặt lệnh với validation chuỗi trách nhiệm.
 - **Bot giao dịch (Bot):** Cấu hình chiến lược (MA, RSI, MACD, Bollinger Bands), bật/tắt và hiển thị RSI.
 - **Lịch sử (History):** Xem các giao dịch đã khớp.

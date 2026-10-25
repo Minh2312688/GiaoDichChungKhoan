@@ -137,7 +137,7 @@ public final class MainWindow extends JFrame {
   private void onSessionQuote(Quote quote) {
     dashboardPanel.setQuote(quote.symbol(), quote.bid().toPlainString(), quote.ask().toPlainString());
     dashboardPanel.showCash(facade.cash().setScale(2, RoundingMode.HALF_UP).toPlainString());
-    dashboardPanel.showPositions(facade.positions().toString());
+    dashboardPanel.showPositions(facade.positions());
     dashboardPanel.showPendingCount(facade.pendingOrders().size());
     dashboardPanel.showBotStatus(botController.status().label());
 
@@ -151,7 +151,7 @@ public final class MainWindow extends JFrame {
 
   public void refreshAllScreens() {
     dashboardPanel.showCash(facade.cash().setScale(2, RoundingMode.HALF_UP).toPlainString());
-    dashboardPanel.showPositions(facade.positions().toString());
+    dashboardPanel.showPositions(facade.positions());
     dashboardPanel.showPendingCount(facade.pendingOrders().size());
     dashboardPanel.showBotStatus(botController.status().label());
     pendingOrdersScreen.showOrders(facade.pendingOrders());

@@ -9,6 +9,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Consumer;
 
 public class DashboardPanel extends JPanel {
     private final PriceBoardPanel priceBoard;
@@ -92,6 +94,12 @@ public class DashboardPanel extends JPanel {
 
     public PortfolioPanel getPortfolioPanel() {
         return portfolioPanel;
+    }
+
+    public void onTradeRequest(Consumer<String> listener) {
+        Consumer<String> tradeRequest = Objects.requireNonNull(listener, "listener");
+        priceBoard.onSymbolDoubleClick(tradeRequest);
+        portfolioPanel.onSymbolDoubleClick(tradeRequest);
     }
 
     public JLabel getCashLabel() {

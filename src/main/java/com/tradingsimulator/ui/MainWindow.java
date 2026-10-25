@@ -4,9 +4,11 @@ import com.tradingsimulator.core.ExchangeEngine;
 import com.tradingsimulator.core.TradingFacade;
 import com.tradingsimulator.marketdata.adapters.MarketAdapter;
 import com.tradingsimulator.marketdata.adapters.RandomWalkMarketDataProvider;
+import com.tradingsimulator.model.Order;
 import com.tradingsimulator.model.OrderType;
 import com.tradingsimulator.model.Quote;
 import com.tradingsimulator.ui.bot.BotController;
+import com.tradingsimulator.ui.components.OrderFormPanel;
 import com.tradingsimulator.ui.navigation.ScreenId;
 import com.tradingsimulator.ui.navigation.ScreenManager;
 import com.tradingsimulator.ui.navigation.SidebarNavigation;
@@ -112,14 +114,8 @@ public final class MainWindow extends JFrame {
     add(statusBar, BorderLayout.SOUTH);
 
     // 6. Xử lý đặt lệnh từ form
-    tradingPanel.getOrderForm().onSubmit(order -> {
-      if (order.type() == OrderType.MARKET) {
-        facade.submit(order);
-      } else {
-        facade.submitPending(order);
-      }
-      refreshAllScreens();
-    });
+    tradingPanel.getOrderForm().onSubmit(this::submitOrder);
+    dashboardPanel.onTradeRequest(this::showQuickTradeDialog);
 
     // 7. Lắng nghe session update từ controller
     sessionController.addListener(this::onSessionQuote);
@@ -147,6 +143,37 @@ public final class MainWindow extends JFrame {
 
     statusBar.setText(" Cập nhật gần nhất: " + quote.symbol() + " | Khớp: "
         + quote.last().toPlainString() + " | Lệnh chờ: " + facade.pendingOrders().size());
+  }
+
+  private void submitOrder(Order order) {
+    if (order.type() == OrderType.MARKET) {
+      facade.submit(order);
+    } else {
+      facade.submitPending(order);
+    }
+    refreshAllScreens();
+  }
+
+  private void showQuickTradeDialog(String symbol) {
+    JDialog dialog = new JDialog(this, "Mua / Bán " + symbol, Dialog.ModalityType.APPLICATION_MODAL);
+    OrderFormPanel orderForm = new OrderFormPanel(symbols);
+    orderForm.setSymbol(symbol);
+    orderForm.onSubmit(order -> {
+      submitOrder(order);
+      dialog.dispose();
+    });
+
+    JPanel content = new JPanel(new BorderLayout(8, 8));
+    content.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
+    JLabel hint = new JLabel("Chọn MUA hoặc BÁN, nhập khối lượng và gửi lệnh.");
+    content.add(hint, BorderLayout.NORTH);
+    content.add(orderForm, BorderLayout.CENTER);
+    dialog.setContentPane(content);
+    dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+    dialog.setResizable(false);
+    dialog.pack();
+    dialog.setLocationRelativeTo(this);
+    dialog.setVisible(true);
   }
 
   public void refreshAllScreens() {

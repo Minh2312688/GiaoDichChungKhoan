@@ -1,3 +1,4 @@
+
 package com.tradingsimulator;
 
 import com.tradingsimulator.model.Order;
@@ -13,9 +14,11 @@ import com.tradingsimulator.ui.screens.PendingOrdersScreen;
 import com.tradingsimulator.ui.screens.TradingPanel;
 import org.junit.jupiter.api.Test;
 
+import java.awt.event.MouseEvent;
 import java.math.BigDecimal;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -39,6 +42,29 @@ public class TestScreens {
         assertEquals(10, dashboard.getPortfolioPanel().getTable().getValueAt(0, 1));
         assertEquals("9.50", dashboard.getPortfolioPanel().getTable().getValueAt(0, 2));
         assertTrue(dashboard.getBotStatusLabel().getText().contains("ĐANG CHỜ"));
+    }
+
+    @Test
+    void dashboardDoubleClickRequestsTradeForSelectedSymbolFromBothTables() {
+        DashboardPanel dashboard = new DashboardPanel();
+        dashboard.setQuote("ABC", "10.00", "10.50");
+        dashboard.showPositions(Map.of(
+                "XYZ", new Position("XYZ", 3, new BigDecimal("20.00"))));
+        AtomicReference<String> requestedSymbol = new AtomicReference<>();
+        dashboard.onTradeRequest(requestedSymbol::set);
+
+        dispatchDoubleClick(dashboard.getPriceBoard().getTable());
+        assertEquals("ABC", requestedSymbol.get());
+
+        dispatchDoubleClick(dashboard.getPortfolioPanel().getTable());
+        assertEquals("XYZ", requestedSymbol.get());
+    }
+
+    private void dispatchDoubleClick(javax.swing.JTable table) {
+        java.awt.Rectangle cell = table.getCellRect(0, 0, true);
+        table.dispatchEvent(new MouseEvent(
+                table, MouseEvent.MOUSE_CLICKED, System.currentTimeMillis(), 0,
+                cell.x + 1, cell.y + 1, 2, false));
     }
 
     @Test

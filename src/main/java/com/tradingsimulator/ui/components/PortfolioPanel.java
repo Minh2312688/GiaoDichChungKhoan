@@ -2,8 +2,12 @@ package com.tradingsimulator.ui.components;
 
 import com.tradingsimulator.model.Position;
 import java.awt.BorderLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Comparator;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Consumer;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -25,6 +29,7 @@ public final class PortfolioPanel extends JPanel {
   };
   private final JTable table = new JTable(model);
   private final JLabel emptyLabel = new JLabel("Chưa có chứng khoán đang nắm giữ", JLabel.CENTER);
+  private Consumer<String> symbolDoubleClickListener;
 
   public PortfolioPanel() {
     setLayout(new BorderLayout(8, 8));
@@ -32,6 +37,18 @@ public final class PortfolioPanel extends JPanel {
     add(new JScrollPane(table), BorderLayout.CENTER);
     add(emptyLabel, BorderLayout.SOUTH);
     emptyLabel.setVisible(true);
+    table.setToolTipText("Nhấn đúp vào mã chứng khoán để mua hoặc bán");
+    table.addMouseListener(new MouseAdapter() {
+      @Override
+      public void mouseClicked(MouseEvent event) {
+        if (event.getClickCount() == 2) {
+          int row = table.rowAtPoint(event.getPoint());
+          if (row >= 0 && symbolDoubleClickListener != null) {
+            symbolDoubleClickListener.accept(model.getValueAt(row, 0).toString());
+          }
+        }
+      }
+    });
   }
 
   public void showPositions(Map<String, Position> positions) {
@@ -52,5 +69,9 @@ public final class PortfolioPanel extends JPanel {
 
   public JTable getTable() {
     return table;
+  }
+
+  public void onSymbolDoubleClick(Consumer<String> listener) {
+    symbolDoubleClickListener = Objects.requireNonNull(listener, "listener");
   }
 }

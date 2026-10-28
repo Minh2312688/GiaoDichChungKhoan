@@ -33,9 +33,15 @@ public final class PortfolioPanel extends JPanel {
 
   public PortfolioPanel() {
     setLayout(new BorderLayout(8, 8));
-    add(new JLabel("Danh mục chứng khoán"), BorderLayout.NORTH);
-    add(new JScrollPane(table), BorderLayout.CENTER);
+    JLabel title = new JLabel("Danh mục chứng khoán");
+    title.setFont(title.getFont().deriveFont(java.awt.Font.BOLD, 15f));
+    title.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 8, 0));
+    add(title, BorderLayout.NORTH);
+    JScrollPane scrollPane = new JScrollPane(table);
+    scrollPane.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+    add(scrollPane, BorderLayout.CENTER);
     add(emptyLabel, BorderLayout.SOUTH);
+    TradingTableStyle.apply(table);
     emptyLabel.setVisible(true);
     table.setToolTipText("Nhấn đúp vào mã chứng khoán để mua hoặc bán");
     table.addMouseListener(new MouseAdapter() {

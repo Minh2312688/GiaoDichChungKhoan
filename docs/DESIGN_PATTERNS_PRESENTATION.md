@@ -343,10 +343,15 @@ bộ, chỉ có `addObserver`, chưa có API hủy đăng ký; đây là điểm
 
 **Ghi chú thuyết trình**
 
-`BotController` quản lý lịch sử giá và gọi strategy qua facade. Strategy chỉ quyết định tín hiệu;
-facade/engine vẫn xử lý validation và giao dịch. Các lớp chiến lược được kiểm thử riêng trong
-`TestStrategies`. Việc chia sẻ Strategy như Flyweight chỉ phù hợp nếu trạng thái hoặc cấu hình cho
-phép dùng chung an toàn; không phải mọi Strategy đều có thể chia sẻ như vậy.
+“Ở phần này, em trình bày mẫu Strategy trong bot giao dịch. Nếu viết mỗi thuật toán trực tiếp
+trong luồng xử lý bot, mỗi lần đổi cách phân tích giá mình lại phải sửa luồng đó. Vì vậy, dự án
+định nghĩa một giao diện chung là `IBotStrategy`, rồi tách từng cách phân tích thành một lớp riêng:
+MA, RSI, MACD và Bollinger Bands.
+
+Khi nhận giá mới, `BotController` cập nhật lịch sử giá và hỏi chiến lược đang được chọn thông qua
+facade. Chiến lược trả về `BUY`, `SELL` hoặc không có tín hiệu. Phần kiểm tra lệnh và thực thi giao
+dịch vẫn do facade và engine xử lý, chứ không nằm trong thuật toán chiến lược. Nhờ vậy, mình có thể
+đổi cách bot phân tích mà không phải viết lại luồng nhận giá và gửi lệnh.”
 
 ## Slide 15 — Lý Ngọc Thảo Nguyên: Sơ đồ lớp Strategy
 
@@ -409,9 +414,13 @@ classDiagram
 
 **Ghi chú thuyết trình**
 
-Mọi concrete strategy dùng hợp đồng `IBotStrategy`; facade giữ chiến lược đang chọn và bot hỏi
-facade để tính tín hiệu. Mỗi lớp chứa một thuật toán khác nhau, còn quá trình gửi lệnh nằm ngoài
-strategy.
+“Trên sơ đồ, `IBotStrategy` là hợp đồng chung: các chiến lược nhận dữ liệu giá và trả về tín hiệu.
+`BaseStrategy` gom phần cấu hình dùng chung như chu kỳ phân tích; bên dưới là bốn cách tính khác
+nhau. Riêng chiến lược RSI còn có thể nhận trực tiếp giá trị RSI để xác định tín hiệu.
+
+`TradingFacade` giữ chiến lược đang được chọn, còn `BotController` yêu cầu facade tính tín hiệu.
+Điểm chính ở đây là bot làm việc với hợp đồng chung, không cần biết bên dưới đang dùng MA hay MACD.
+Sau khi có tín hiệu, việc gửi lệnh vẫn nằm ngoài các lớp Strategy.”
 
 ## Slide 16 — Lý Ngọc Thảo Nguyên: Checklist xây dựng Strategy
 
@@ -431,8 +440,15 @@ strategy.
 
 **Ghi chú thuyết trình**
 
-Checklist liên hệ nguyên tắc Open-Closed: thêm thuật toán mới bằng concrete strategy, không đưa
-thêm nhánh điều kiện vào `BotController`. Nhấn mạnh hợp đồng cần xử lý rõ trường hợp thiếu dữ liệu.
+“Tóm lại, khi áp dụng Strategy, trước hết mình xác định phần nào cần thay đổi độc lập — ở đây là
+thuật toán tạo tín hiệu. Sau đó, mình thống nhất đầu vào và kết quả qua `IBotStrategy`, rồi đặt mỗi
+thuật toán vào một lớp riêng để facade có thể giữ và thay thế chiến lược.
+
+Phần kiểm thử cũng cần chú ý dữ liệu chưa đủ, các ngưỡng biên và trường hợp không phát tín hiệu.
+Dự án có `TestStrategies` để kiểm tra các tình huống này. Khi cần thêm thuật toán, có thể bổ sung
+một chiến lược theo hợp đồng chung thay vì thêm nhánh chọn thuật toán vào `BotController`. Đổi lại,
+số lớp sẽ nhiều hơn, nên cách này hữu ích nhất khi thực sự cần thay đổi hoặc kiểm thử nhiều thuật
+toán. Sau đây, em xin chuyển sang phần các mẫu phối hợp trong một phiên giao dịch.”
 
 ## Slide 17 — Các mẫu phối hợp trong một phiên
 

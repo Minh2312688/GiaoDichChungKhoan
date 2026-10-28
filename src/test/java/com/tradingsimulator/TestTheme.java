@@ -12,7 +12,8 @@ class TestTheme {
     ThemeManager t = ThemeManager.load("missing-theme.json");
     assertNotNull(t.background());
     assertNotNull(t.foreground());
-    assertEquals(Color.DARK_GRAY, t.background());
+    assertEquals(new Color(0x12, 0x17, 0x21), t.background());
+    assertEquals(new Color(0xf0, 0xb9, 0x0b), t.accent());
   }
 
   @Test void configuredThemeLoadsAndAppliesRecursively(){
@@ -32,5 +33,12 @@ class TestTheme {
     assertNotNull(t.positive());
     assertNotNull(t.negative());
     assertNotNull(t.warning());
+  }
+
+  @Test void flatDarkLookAndFeelConfiguresRoundedControls(){
+    ThemeManager.setupLookAndFeel();
+    assertTrue(UIManager.getLookAndFeel().getName().contains("FlatLaf"));
+    assertEquals(10, UIManager.getInt("Button.arc"));
+    assertEquals(8, UIManager.getInt("TextComponent.arc"));
   }
 }

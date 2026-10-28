@@ -19,9 +19,13 @@ class TestUi {
     assertEquals(1, panel.getTable().getRowCount());
     assertEquals("ABC", panel.getTable().getValueAt(0, 0));
     assertEquals("10.10", panel.getTable().getValueAt(0, 2));
+    assertEquals(36, panel.getTable().getRowHeight());
+    assertEquals("0.00%", panel.getTable().getValueAt(0, 3));
     assertEquals("Mã", panel.getTable().getColumnName(0));
     assertEquals("Giá mua", panel.getTable().getColumnName(1));
     assertEquals("Giá bán", panel.getTable().getColumnName(2));
+    panel.setQuote("ABC", "11.00", "11.10");
+    assertEquals("+9.95%", panel.getTable().getValueAt(0, 3));
   }
 
   @Test void orderFormEmitsOrderInput(){
@@ -119,6 +123,10 @@ class TestUi {
       window.getScreenManager().show(id);
       assertEquals(id, window.getScreenManager().currentScreen());
     }
+    window.getSidebarNavigation().setCollapsed(true);
+    assertTrue(window.getSidebarNavigation().isCollapsed());
+    window.getSidebarNavigation().setCollapsed(false);
+    assertFalse(window.getSidebarNavigation().isCollapsed());
     assertEquals(initialWindows, java.awt.Window.getWindows().length);
     window.dispose();
   }

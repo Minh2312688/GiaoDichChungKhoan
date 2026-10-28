@@ -22,7 +22,7 @@ public class DashboardPanel extends JPanel {
 
     public DashboardPanel() {
         setLayout(new BorderLayout(10, 10));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        setBorder(BorderFactory.createEmptyBorder(14, 14, 14, 14));
 
         priceBoard = new PriceBoardPanel();
         portfolioPanel = new PortfolioPanel();
@@ -36,9 +36,13 @@ public class DashboardPanel extends JPanel {
         JPanel summaryPanel = new JPanel();
         summaryPanel.setLayout(new BoxLayout(summaryPanel, BoxLayout.Y_AXIS));
         summaryPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createTitledBorder("Tổng quan tài khoản & Bot"),
-                BorderFactory.createEmptyBorder(8, 8, 8, 8)
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(new Color(0x2b, 0x31, 0x3a)),
+                        BorderFactory.createTitledBorder("TỔNG QUAN")),
+                BorderFactory.createEmptyBorder(12, 12, 12, 12)
         ));
+        summaryPanel.setBackground(new Color(0x1e, 0x23, 0x29));
+        summaryPanel.setPreferredSize(new Dimension(220, 0));
 
         cashLabel = new JLabel("Tiền mặt: -");
         positionsLabel = new JLabel("Mã đang nắm giữ: 0");

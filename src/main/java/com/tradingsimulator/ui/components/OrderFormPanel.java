@@ -21,7 +21,8 @@ public final class OrderFormPanel extends JPanel {
   private final OrderFactory orderFactory = new OrderFactory();
   private final JComboBox<String> symbolBox = new JComboBox<>();
   private final JTextField quantityField = new JTextField("1", 8);
-  private final JComboBox<OrderSide> sideBox = new JComboBox<>(OrderSide.values());
+  private final JToggleButton buyButton = new JToggleButton("MUA");
+  private final JToggleButton sellButton = new JToggleButton("BÁN");
   private final JComboBox<OrderType> typeBox = new JComboBox<>(OrderType.values());
   private final JTextField priceField = new JTextField("0.00", 8);
   private final JButton submitButton = new JButton("Gửi lệnh");
@@ -32,18 +33,26 @@ public final class OrderFormPanel extends JPanel {
   }
 
   public OrderFormPanel(Collection<String> symbols) {
-    setLayout(new GridBagLayout());
-    GridBagConstraints c = new GridBagConstraints();
-    c.insets = new Insets(4, 4, 4, 4); c.anchor = GridBagConstraints.WEST;
+    setLayout(new BorderLayout(12, 14));
+    setBorder(BorderFactory.createCompoundBorder(
+        BorderFactory.createLineBorder(new Color(0x2b, 0x31, 0x3a)),
+        BorderFactory.createEmptyBorder(18, 18, 18, 18)));
+    setPreferredSize(new Dimension(340, 400));
     setSymbols(symbols);
-    sideBox.setRenderer(new DefaultListCellRenderer() {
-      @Override
-      public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-          boolean isSelected, boolean cellHasFocus) {
-        Object display = value == OrderSide.BUY ? "MUA" : value == OrderSide.SELL ? "BÁN" : value;
-        return super.getListCellRendererComponent(list, display, index, isSelected, cellHasFocus);
-      }
-    });
+    ButtonGroup sides = new ButtonGroup();
+    sides.add(buyButton);
+    sides.add(sellButton);
+    buyButton.setSelected(true);
+    buyButton.setFocusPainted(false);
+    sellButton.setFocusPainted(false);
+    buyButton.setBackground(new Color(0x0e, 0xcb, 0x81));
+    buyButton.setForeground(new Color(0x12, 0x17, 0x21));
+    sellButton.setBackground(new Color(0xf6, 0x46, 0x5d));
+    sellButton.setForeground(Color.WHITE);
+    buyButton.setOpaque(true);
+    sellButton.setOpaque(true);
+    buyButton.setPreferredSize(new Dimension(135, 38));
+    sellButton.setPreferredSize(new Dimension(135, 38));
     typeBox.setRenderer(new DefaultListCellRenderer() {
       @Override
       public Component getListCellRendererComponent(JList<?> list, Object value, int index,
@@ -59,19 +68,66 @@ public final class OrderFormPanel extends JPanel {
     typeBox.addActionListener(event -> updatePriceFieldState());
     symbolBox.setToolTipText("Chọn mã chứng khoán trong danh sách thị trường");
     priceField.setToolTipText("Giá giới hạn hoặc giá kích hoạt dừng lỗ");
-    addRow("Đặt lệnh", new JLabel("Đặt lệnh"), c, 0);
-    addRow("Mã chứng khoán", symbolBox, c, 1);
-    addRow("Chiều", sideBox, c, 2);
-    addRow("Loại lệnh", typeBox, c, 3);
-    addRow("Số lượng", quantityField, c, 4);
-    addRow("Giá điều kiện", priceField, c, 5);
-    addRow("", submitButton, c, 6);
-    addRow("Trạng thái", statusLabel, c, 7);
+    quantityField.setColumns(10);
+    priceField.setColumns(10);
+    quantityField.setHorizontalAlignment(JTextField.RIGHT);
+    priceField.setHorizontalAlignment(JTextField.RIGHT);
+
+    JLabel title = new JLabel("Đặt lệnh");
+    title.setFont(title.getFont().deriveFont(Font.BOLD, 18f));
+    title.setBorder(BorderFactory.createEmptyBorder(0, 0, 4, 0));
+    add(title, BorderLayout.NORTH);
+
+    JPanel fields = new JPanel(new GridBagLayout());
+    GridBagConstraints c = new GridBagConstraints();
+    c.insets = new Insets(7, 0, 7, 0);
+    c.anchor = GridBagConstraints.WEST;
+    c.fill = GridBagConstraints.HORIZONTAL;
+    c.weightx = 1;
+    addRow(fields, "Mã chứng khoán", symbolBox, c, 0);
+    JPanel sideButtons = new JPanel(new GridLayout(1, 2, 8, 0));
+    sideButtons.add(buyButton);
+    sideButtons.add(sellButton);
+    addRow(fields, "Chiều giao dịch", sideButtons, c, 1);
+    addRow(fields, "Loại lệnh", typeBox, c, 2);
+
+    JPanel quantityControls = new JPanel(new BorderLayout(5, 0));
+    JButton minusOne = new JButton("−1");
+    JButton plusOne = new JButton("+1");
+    JButton plusTen = new JButton("+10");
+    minusOne.addActionListener(event -> adjustQuantity(-1));
+    plusOne.addActionListener(event -> adjustQuantity(1));
+    plusTen.addActionListener(event -> adjustQuantity(10));
+    JPanel quantityButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 4, 0));
+    quantityButtons.add(minusOne);
+    quantityButtons.add(plusOne);
+    quantityButtons.add(plusTen);
+    quantityControls.add(quantityField, BorderLayout.CENTER);
+    quantityControls.add(quantityButtons, BorderLayout.EAST);
+    addRow(fields, "Số lượng", quantityControls, c, 3);
+    addRow(fields, "Giá điều kiện", priceField, c, 4);
+    add(fields, BorderLayout.CENTER);
+
+    JPanel footer = new JPanel(new BorderLayout(0, 10));
+    submitButton.setFont(submitButton.getFont().deriveFont(Font.BOLD));
+    submitButton.setPreferredSize(new Dimension(0, 42));
+    statusLabel.setOpaque(true);
+    statusLabel.setBorder(BorderFactory.createEmptyBorder(9, 10, 9, 10));
+    setStatus("Sẵn sàng đặt lệnh");
+    footer.add(submitButton, BorderLayout.NORTH);
+    footer.add(statusLabel, BorderLayout.CENTER);
+    add(footer, BorderLayout.SOUTH);
     updatePriceFieldState();
   }
 
-  private void addRow(String label, Component component, GridBagConstraints c, int row) {
-    c.gridy = row; c.gridx = 0; add(new JLabel(label), c); c.gridx = 1; add(component, c);
+  private void addRow(
+      JPanel panel, String label, Component component, GridBagConstraints c, int row) {
+    c.gridy = row;
+    c.gridx = 0;
+    c.weightx = 1;
+    panel.add(new JLabel(label), c);
+    c.gridx = 1;
+    panel.add(component, c);
   }
 
   public String getSymbol() {
@@ -119,10 +175,25 @@ public final class OrderFormPanel extends JPanel {
     }
   }
 
+  public void addSymbolSelectionListener(Consumer<String> listener) {
+    Consumer<String> selectionListener = java.util.Objects.requireNonNull(listener, "listener");
+    symbolBox.addActionListener(event -> {
+      Object selected = symbolBox.getSelectedItem();
+      if (selected != null) selectionListener.accept(selected.toString());
+    });
+  }
+
   public int getQuantity() { return Integer.parseInt(quantityField.getText().trim()); }
   public void setQuantity(String quantity) { quantityField.setText(quantity); }
-  public void setSide(OrderSide side) { sideBox.setSelectedItem(side); }
-  public OrderSide getSide() { return (OrderSide) sideBox.getSelectedItem(); }
+  public void setSide(OrderSide side) {
+    if (side == OrderSide.BUY) buyButton.setSelected(true);
+    if (side == OrderSide.SELL) sellButton.setSelected(true);
+  }
+  public OrderSide getSide() {
+    if (buyButton.isSelected()) return OrderSide.BUY;
+    if (sellButton.isSelected()) return OrderSide.SELL;
+    return null;
+  }
 
   public void setOrderType(OrderType type) { typeBox.setSelectedItem(type); }
   public OrderType getOrderType() { return (OrderType) typeBox.getSelectedItem(); }
@@ -158,6 +229,15 @@ public final class OrderFormPanel extends JPanel {
     priceField.setEnabled(selected == OrderType.LIMIT || selected == OrderType.STOP_LOSS);
   }
 
+  private void adjustQuantity(int amount) {
+    try {
+      int quantity = Integer.parseInt(quantityField.getText().trim());
+      quantityField.setText(Integer.toString(Math.max(1, quantity + amount)));
+    } catch (NumberFormatException error) {
+      setStatus("Số lượng phải là số nguyên dương");
+    }
+  }
+
   public void onSubmit(Consumer<Order> listener) {
     submitButton.addActionListener(event -> {
       try {
@@ -168,7 +248,14 @@ public final class OrderFormPanel extends JPanel {
       catch (IllegalArgumentException error) { setStatus(error.getMessage()); }
     });
   }
-  public void setStatus(String status) { statusLabel.setText(status == null ? " " : status); }
+  public void setStatus(String status) {
+    statusLabel.setText(status == null ? " " : status);
+    boolean isError = status != null && !status.startsWith("Sẵn sàng")
+        && !status.startsWith("Đã ");
+    statusLabel.setForeground(isError
+        ? new Color(0xf6, 0x46, 0x5d) : new Color(0x0e, 0xcb, 0x81));
+    statusLabel.setBackground(new Color(0x2b, 0x21, 0x27));
+  }
   public JButton getSubmitButton() { return submitButton; }
   public JLabel getStatusLabel() { return statusLabel; }
 }

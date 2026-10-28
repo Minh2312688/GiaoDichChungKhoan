@@ -2,6 +2,8 @@ package com.tradingsimulator.ui.screens;
 
 import com.tradingsimulator.core.TradingFacade;
 import com.tradingsimulator.model.Quote;
+import com.tradingsimulator.tradingengine.botstrategies.MacdStrategy;
+import com.tradingsimulator.tradingengine.botstrategies.MovingAverageCrossoverStrategy;
 import com.tradingsimulator.tradingengine.botstrategies.RsiThresholdStrategy;
 import com.tradingsimulator.ui.bot.BotController;
 import com.tradingsimulator.ui.components.BotPanel;
@@ -14,6 +16,8 @@ import java.util.List;
 public class BotScreen extends JPanel {
     private final BotPanel botPanel;
     private final RsiThresholdStrategy rsiIndicator = new RsiThresholdStrategy();
+    private final MovingAverageCrossoverStrategy maIndicator = new MovingAverageCrossoverStrategy();
+    private final MacdStrategy macdIndicator = new MacdStrategy();
 
     public BotScreen(TradingFacade facade) {
         this(new BotPanel(facade));
@@ -43,6 +47,9 @@ public class BotScreen extends JPanel {
             } else {
                 botPanel.clearRsi();
             }
+            botPanel.showStrategyIndicators(
+                    prices == null ? null : maIndicator.signal(prices),
+                    prices == null ? null : macdIndicator.signal(prices));
         } else {
             botPanel.clearRsi();
         }

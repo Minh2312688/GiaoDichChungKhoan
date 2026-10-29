@@ -1,217 +1,295 @@
 package com.tradingsimulator.ui.navigation;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.geom.Path2D;
-import java.awt.geom.RoundRectangle2D;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
 /**
- * Thanh điều hướng Sidebar Navigation chuyên nghiệp chuẩn SSI iBoard.
- * Thiết kế gọn gàng, hiện đại với icon vector sinh động, sắc nét trên mọi hệ điều hành.
+ * Thanh điều hướng dọc thu gọn bên trái (compact sidebar) với biểu tượng vector sắc nét.
+ * Hỗ trợ chế độ mở rộng (expanded ~165px) và thu nhỏ (collapsed ~56px).
  */
 public class SidebarNavigation extends JPanel {
+
     private final Consumer<ScreenId> onSelect;
-    private final Map<ScreenId, JButton> buttons;
-    private final Map<ScreenId, Icon> icons;
-    private final JButton collapseButton;
-    private boolean collapsed;
-    private ScreenId activeScreen;
+    private final Map<ScreenId, JButton> buttons = new EnumMap<>(ScreenId.class);
+    private ScreenId current = ScreenId.DASHBOARD;
+    private boolean collapsed = false;
+    private final JLabel brandLabel;
+    private final JLabel liveLabel;
+    private final JButton toggleBtn;
 
     public SidebarNavigation(Consumer<ScreenId> onSelect) {
-        this.onSelect = onSelect != null ? onSelect : id -> {};
-        this.buttons = new EnumMap<>(ScreenId.class);
-        this.icons = new EnumMap<>(ScreenId.class);
+        this.onSelect = onSelect;
+        setLayout(new BorderLayout());
+        setBackground(new Color(15, 20, 28));
+        setPreferredSize(new Dimension(165, 0));
+        setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(34, 43, 58)));
 
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setBackground(new Color(0x13, 0x17, 0x22));
-        setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(0x23, 0x27, 0x30)),
-                BorderFactory.createEmptyBorder(12, 8, 12, 8)));
-        setPreferredSize(new Dimension(175, 0));
-
-        // Header Brand SSI iBoard
-        JPanel brand = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
+        // Header Brand & Collapse Toggle
+        JPanel brand = new JPanel(new BorderLayout(4, 0));
         brand.setOpaque(false);
-        JLabel logoBadge = new JLabel(" SSI ");
-        logoBadge.setOpaque(true);
-        logoBadge.setBackground(new Color(0xd3, 0x2f, 0x2f));
-        logoBadge.setForeground(Color.WHITE);
-        logoBadge.setFont(logoBadge.getFont().deriveFont(Font.BOLD, 12f));
-        logoBadge.setBorder(BorderFactory.createEmptyBorder(2, 4, 2, 4));
+        brand.setBorder(new EmptyBorder(12, 10, 10, 10));
 
-        JLabel brandLabel = new JLabel("iBoard");
-        brandLabel.setForeground(Color.WHITE);
-        brandLabel.setFont(brandLabel.getFont().deriveFont(Font.BOLD, 15f));
+        brandLabel = new JLabel(" SSI iBoard", new LogoIcon(18), SwingConstants.LEFT);
+        brandLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        brandLabel.setForeground(new Color(245, 158, 11)); // Amber Gold
+        brand.add(brandLabel, BorderLayout.CENTER);
 
-        collapseButton = new JButton("«");
-        collapseButton.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        collapseButton.setForeground(new Color(0x84, 0x8e, 0x9c));
-        collapseButton.setBackground(new Color(0x1e, 0x23, 0x29));
-        collapseButton.setFocusPainted(false);
-        collapseButton.setBorder(BorderFactory.createEmptyBorder(2, 6, 2, 6));
-        collapseButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        collapseButton.setToolTipText("Thu gọn thanh điều hướng");
-        collapseButton.addActionListener(event -> setCollapsed(!collapsed));
+        toggleBtn = new JButton("«");
+        toggleBtn.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        toggleBtn.setForeground(new Color(156, 163, 175));
+        toggleBtn.setContentAreaFilled(false);
+        toggleBtn.setBorderPainted(false);
+        toggleBtn.setFocusPainted(false);
+        toggleBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        toggleBtn.setToolTipText("Thu gọn / Mở rộng");
+        toggleBtn.addActionListener(e -> setCollapsed(!collapsed));
+        brand.add(toggleBtn, BorderLayout.EAST);
 
-        JPanel brandHeader = new JPanel(new BorderLayout(6, 0));
-        brandHeader.setOpaque(false);
-        brand.add(logoBadge);
-        brand.add(brandLabel);
-        brandHeader.add(brand, BorderLayout.CENTER);
-        brandHeader.add(collapseButton, BorderLayout.EAST);
-        brandHeader.setBorder(BorderFactory.createEmptyBorder(0, 4, 16, 4));
-        add(brandHeader);
+        add(brand, BorderLayout.NORTH);
+
+        // Menu items
+        JPanel menu = new JPanel();
+        menu.setLayout(new BoxLayout(menu, BoxLayout.Y_AXIS));
+        menu.setOpaque(false);
+        menu.setBorder(new EmptyBorder(4, 6, 8, 6));
 
         for (ScreenId id : ScreenId.values()) {
-            Icon icon = createVectorIcon(id);
-            icons.put(id, icon);
-
-            JButton button = new JButton(id.getTitle(), icon);
-            button.setIconTextGap(10);
-            button.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-            button.setHorizontalAlignment(SwingConstants.LEFT);
-            button.setAlignmentX(Component.LEFT_ALIGNMENT);
-            button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
-            button.setPreferredSize(new Dimension(160, 38));
-            button.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 8));
-            button.setFocusPainted(false);
-            button.setContentAreaFilled(false);
-            button.setOpaque(true);
-            button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            button.addActionListener(e -> select(id));
-            button.addMouseListener(new java.awt.event.MouseAdapter() {
-                @Override public void mouseEntered(java.awt.event.MouseEvent e) {
-                    if (activeScreen != id) button.setBackground(new Color(0x23, 0x27, 0x30));
-                }
-                @Override public void mouseExited(java.awt.event.MouseEvent e) {
-                    updateButton(id, button);
-                }
-            });
-            buttons.put(id, button);
-            add(button);
-            add(Box.createRigidArea(new Dimension(0, 5)));
+            JButton btn = makeNavButton(id);
+            buttons.put(id, btn);
+            menu.add(btn);
+            menu.add(Box.createVerticalStrut(4));
         }
 
-        add(Box.createVerticalGlue());
-        if (ScreenId.values().length > 0) {
-            select(ScreenId.DASHBOARD);
-        }
+        add(menu, BorderLayout.CENTER);
+
+        // Footer status
+        JPanel footer = new JPanel(new BorderLayout());
+        footer.setOpaque(false);
+        footer.setBorder(new EmptyBorder(10, 8, 10, 8));
+        liveLabel = new JLabel("● LIVE HOSE", SwingConstants.CENTER);
+        liveLabel.setFont(new Font("Segoe UI", Font.BOLD, 10));
+        liveLabel.setForeground(new Color(34, 197, 94)); // Green
+        footer.add(liveLabel, BorderLayout.CENTER);
+        add(footer, BorderLayout.SOUTH);
+
+        select(ScreenId.DASHBOARD);
+    }
+
+    private JButton makeNavButton(ScreenId id) {
+        JButton btn = new JButton(id.getTitle(), new NavIcon(id, 16));
+        btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
+        btn.setPreferredSize(new Dimension(153, 38));
+        btn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btn.setHorizontalAlignment(SwingConstants.LEFT);
+        btn.setIconTextGap(10);
+        btn.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        btn.setForeground(new Color(156, 163, 175));
+        btn.setBackground(new Color(15, 20, 28));
+        btn.setFocusPainted(false);
+        btn.setBorderPainted(false);
+        btn.setContentAreaFilled(false);
+        btn.setOpaque(true);
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btn.setBorder(new EmptyBorder(6, 10, 6, 10));
+        btn.setToolTipText(id.getTitle());
+
+        btn.addActionListener(e -> select(id));
+
+        btn.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                if (current != id) {
+                    btn.setBackground(new Color(24, 32, 45));
+                    btn.setForeground(Color.WHITE);
+                }
+            }
+
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                if (current != id) {
+                    btn.setBackground(new Color(15, 20, 28));
+                    btn.setForeground(new Color(156, 163, 175));
+                }
+            }
+        });
+
+        return btn;
     }
 
     public void select(ScreenId id) {
-        if (id == null) {
-            return;
+        this.current = id;
+        for (Map.Entry<ScreenId, JButton> entry : buttons.entrySet()) {
+            boolean active = entry.getKey() == id;
+            JButton b = entry.getValue();
+            if (active) {
+                b.setBackground(new Color(30, 58, 138)); // Dark accent blue
+                b.setForeground(new Color(96, 165, 250)); // Sky blue text
+                b.setFont(new Font("Segoe UI", Font.BOLD, 12));
+                b.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createMatteBorder(0, 3, 0, 0, new Color(59, 130, 246)),
+                        new EmptyBorder(6, collapsed ? 7 : 7, 6, 10)
+                ));
+            } else {
+                b.setBackground(new Color(15, 20, 28));
+                b.setForeground(new Color(156, 163, 175));
+                b.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+                b.setBorder(new EmptyBorder(6, 10, 6, 10));
+            }
         }
-        this.activeScreen = id;
-        buttons.forEach(this::updateButton);
-        onSelect.accept(id);
-    }
-
-    public void setCollapsed(boolean collapsed) {
-        this.collapsed = collapsed;
-        setPreferredSize(new Dimension(collapsed ? 54 : 175, 0));
-        buttons.forEach((id, button) -> {
-            button.setText(collapsed ? "" : id.getTitle());
-            button.setHorizontalAlignment(collapsed ? SwingConstants.CENTER : SwingConstants.LEFT);
-            button.setToolTipText(collapsed ? id.getTitle() : null);
-            updateButton(id, button);
-        });
-        collapseButton.setText(collapsed ? "»" : "«");
-        revalidate();
-        repaint();
+        if (onSelect != null) {
+            onSelect.accept(id);
+        }
     }
 
     public boolean isCollapsed() {
         return collapsed;
     }
 
-    private void updateButton(ScreenId id, JButton button) {
-        boolean active = id == activeScreen;
-        button.setBackground(active ? new Color(0x1e, 0x2d, 0x38) : new Color(0x13, 0x17, 0x22));
-        button.setForeground(active ? new Color(0x0e, 0xcb, 0x81) : new Color(0x84, 0x8e, 0x9c));
-        button.setFont(new Font("Segoe UI", active ? Font.BOLD : Font.PLAIN, 12));
-    }
-
-    private Icon createVectorIcon(ScreenId id) {
-        return new Icon() {
-            @Override public int getIconWidth() { return 18; }
-            @Override public int getIconHeight() { return 18; }
-
-            @Override
-            public void paintIcon(Component c, Graphics g, int x, int y) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                try {
-                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    boolean active = (id == activeScreen);
-                    Color col = active ? new Color(0x0e, 0xcb, 0x81) : new Color(0x84, 0x8e, 0x9c);
-                    g2.setColor(col);
-
-                    switch (id) {
-                        case DASHBOARD -> {
-                            // Biểu tượng Dashboard (4 ô lưới tinh tế)
-                            g2.fillRoundRect(x + 1, y + 1, 6, 6, 2, 2);
-                            g2.fillRoundRect(x + 10, y + 1, 6, 6, 2, 2);
-                            g2.fillRoundRect(x + 1, y + 10, 6, 6, 2, 2);
-                            g2.fillRoundRect(x + 10, y + 10, 6, 6, 2, 2);
-                        }
-                        case TRADING -> {
-                            // Biểu tượng Biểu đồ nến / Đặt lệnh (Cột nến và mũi tên)
-                            g2.fillRect(x + 3, y + 5, 3, 9);
-                            g2.drawLine(x + 4, y + 2, x + 4, y + 15);
-
-                            g2.fillRect(x + 9, y + 2, 3, 10);
-                            g2.drawLine(x + 10, y, x + 10, y + 14);
-
-                            g2.fillRect(x + 15, y + 7, 2, 6);
-                            g2.drawLine(x + 16, y + 4, x + 16, y + 15);
-                        }
-                        case BOT -> {
-                            // Biểu tượng Robot thông minh
-                            g2.drawRoundRect(x + 2, y + 4, 13, 10, 3, 3);
-                            g2.fillOval(x + 5, y + 7, 2, 2);
-                            g2.fillOval(x + 10, y + 7, 2, 2);
-                            g2.drawLine(x + 8, y + 1, x + 8, y + 4);
-                            g2.fillOval(x + 7, y, 3, 2);
-                        }
-                        case HISTORY -> {
-                            // Biểu tượng Đồng hồ lịch sử
-                            g2.setStroke(new BasicStroke(1.6f));
-                            g2.drawOval(x + 2, y + 2, 13, 13);
-                            g2.drawLine(x + 8, y + 5, x + 8, y + 9);
-                            g2.drawLine(x + 8, y + 9, x + 12, y + 9);
-                        }
-                        case PENDING_ORDERS -> {
-                            // Biểu tượng Danh sách lệnh chờ
-                            g2.setStroke(new BasicStroke(1.6f));
-                            g2.drawLine(x + 2, y + 4, x + 15, y + 4);
-                            g2.drawLine(x + 2, y + 9, x + 15, y + 9);
-                            g2.drawLine(x + 2, y + 14, x + 11, y + 14);
-                        }
-                        case SETTINGS -> {
-                            // Biểu tượng Bánh răng cài đặt
-                            g2.setStroke(new BasicStroke(1.6f));
-                            g2.drawOval(x + 5, y + 5, 7, 7);
-                            g2.drawLine(x + 8, y + 1, x + 8, y + 4);
-                            g2.drawLine(x + 8, y + 13, x + 8, y + 16);
-                            g2.drawLine(x + 1, y + 8, x + 4, y + 8);
-                            g2.drawLine(x + 13, y + 8, x + 16, y + 8);
-                        }
-                    }
-                } finally {
-                    g2.dispose();
-                }
+    public void setCollapsed(boolean collapsed) {
+        this.collapsed = collapsed;
+        if (collapsed) {
+            setPreferredSize(new Dimension(56, 0));
+            brandLabel.setText("");
+            liveLabel.setText("●");
+            toggleBtn.setText("»");
+            for (Map.Entry<ScreenId, JButton> entry : buttons.entrySet()) {
+                JButton b = entry.getValue();
+                b.setText("");
+                b.setHorizontalAlignment(SwingConstants.CENTER);
+                b.setPreferredSize(new Dimension(44, 38));
             }
-        };
+        } else {
+            setPreferredSize(new Dimension(165, 0));
+            brandLabel.setText(" SSI iBoard");
+            liveLabel.setText("● LIVE HOSE");
+            toggleBtn.setText("«");
+            for (Map.Entry<ScreenId, JButton> entry : buttons.entrySet()) {
+                JButton b = entry.getValue();
+                b.setText(entry.getKey().getTitle());
+                b.setHorizontalAlignment(SwingConstants.LEFT);
+                b.setPreferredSize(new Dimension(153, 38));
+            }
+        }
+        revalidate();
+        repaint();
     }
 
-    public ScreenId getActiveScreen() {
-        return activeScreen;
+    /**
+     * Vector icon cho Logo SSI
+     */
+    private static class LogoIcon implements Icon {
+        private final int size;
+
+        LogoIcon(int size) {
+            this.size = size;
+        }
+
+        @Override
+        public void paintIcon(Component c, Graphics g, int x, int y) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(new Color(245, 158, 11));
+            g2.fillRoundRect(x, y, size, size, 4, 4);
+            g2.setColor(Color.BLACK);
+            g2.setFont(new Font("Segoe UI", Font.BOLD, 11));
+            g2.drawString("S", x + 5, y + size - 4);
+            g2.dispose();
+        }
+
+        @Override
+        public int getIconWidth() {
+            return size;
+        }
+
+        @Override
+        public int getIconHeight() {
+            return size;
+        }
     }
 
-    public JButton getButton(ScreenId id) {
-        return buttons.get(id);
+    /**
+     * Biểu tượng vector cho từng mục menu
+     */
+    private static class NavIcon implements Icon {
+        private final ScreenId screenId;
+        private final int size;
+
+        NavIcon(ScreenId id, int size) {
+            this.screenId = id;
+            this.size = size;
+        }
+
+        @Override
+        public void paintIcon(Component c, Graphics g, int x, int y) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(c.getForeground());
+
+            int midX = x + size / 2;
+            int midY = y + size / 2;
+
+            switch (screenId) {
+                case DASHBOARD: // 4 ô vuông dashboard
+                    g2.fillRect(x + 1, y + 1, 5, 5);
+                    g2.fillRect(x + 9, y + 1, 5, 5);
+                    g2.fillRect(x + 1, y + 9, 5, 5);
+                    g2.fillRect(x + 9, y + 9, 5, 5);
+                    break;
+                case TRADING: // Biểu đồ nến / cột sóng
+                    g2.setStroke(new BasicStroke(1.8f));
+                    g2.drawLine(x + 3, y + 12, x + 3, y + 6);
+                    g2.drawLine(x + 7, y + 14, x + 7, y + 3);
+                    g2.drawLine(x + 11, y + 11, x + 11, y + 7);
+                    g2.drawLine(x + 14, y + 13, x + 14, y + 2);
+                    break;
+                case BOT: // Biểu tượng robot / chip
+                    g2.setStroke(new BasicStroke(1.5f));
+                    g2.drawRoundRect(x + 2, y + 4, 12, 10, 3, 3);
+                    g2.drawLine(midX, y + 1, midX, y + 4); // anten
+                    g2.fillOval(x + 5, y + 7, 2, 2); // mắt trái
+                    g2.fillOval(x + 9, y + 7, 2, 2); // mắt phải
+                    g2.drawLine(x + 5, y + 11, x + 9, y + 11); // miệng
+                    break;
+                case HISTORY: // Đồng hồ lịch sử
+                    g2.setStroke(new BasicStroke(1.5f));
+                    g2.drawOval(x + 1, y + 1, 13, 13);
+                    g2.drawLine(midX, midY, midX, y + 4);
+                    g2.drawLine(midX, midY, x + 11, midY);
+                    break;
+                case PENDING: // Danh sách / sổ lệnh
+                    g2.setStroke(new BasicStroke(1.5f));
+                    g2.drawRect(x + 2, y + 1, 11, 13);
+                    g2.drawLine(x + 5, y + 4, x + 10, y + 4);
+                    g2.drawLine(x + 5, y + 7, x + 10, y + 7);
+                    g2.drawLine(x + 5, y + 10, x + 8, y + 10);
+                    break;
+                case SETTINGS: // Bánh răng cài đặt
+                    g2.setStroke(new BasicStroke(1.8f));
+                    g2.drawOval(x + 4, y + 4, 8, 8);
+                    g2.drawLine(midX, y + 1, midX, y + 3);
+                    g2.drawLine(midX, y + 12, midX, y + 14);
+                    g2.drawLine(x + 1, midY, x + 3, midY);
+                    g2.drawLine(x + 12, midY, x + 14, midY);
+                    break;
+                default:
+                    g2.fillOval(x + 4, y + 4, 8, 8);
+                    break;
+            }
+            g2.dispose();
+        }
+
+        @Override
+        public int getIconWidth() {
+            return size;
+        }
+
+        @Override
+        public int getIconHeight() {
+            return size;
+        }
     }
 }

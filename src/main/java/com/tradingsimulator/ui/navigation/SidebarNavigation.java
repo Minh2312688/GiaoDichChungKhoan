@@ -25,19 +25,32 @@ public class SidebarNavigation extends JPanel {
                 BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(0x2b, 0x31, 0x3a)),
                 BorderFactory.createEmptyBorder(12, 10, 12, 10)));
 
-        JPanel brand = new JPanel(new BorderLayout(8, 0));
+        JPanel brand = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
         brand.setOpaque(false);
-        JLabel brandLabel = new JLabel("◆  TRADE");
-        brandLabel.setForeground(new Color(0xf0, 0xb9, 0x0b));
+        JLabel logoBadge = new JLabel(" SSI ");
+        logoBadge.setOpaque(true);
+        logoBadge.setBackground(new Color(0xd3, 0x2f, 0x2f)); // Màu đỏ SSI
+        logoBadge.setForeground(Color.WHITE);
+        logoBadge.setFont(logoBadge.getFont().deriveFont(Font.BOLD, 12f));
+        logoBadge.setBorder(BorderFactory.createEmptyBorder(2, 4, 2, 4));
+
+        JLabel brandLabel = new JLabel("iBoard");
+        brandLabel.setForeground(Color.WHITE);
         brandLabel.setFont(brandLabel.getFont().deriveFont(Font.BOLD, 15f));
-        collapseButton = new JButton("☰");
+
+        collapseButton = new JButton("≡");
         collapseButton.setToolTipText("Thu gọn thanh điều hướng");
         collapseButton.setFocusable(false);
         collapseButton.addActionListener(event -> setCollapsed(!collapsed));
-        brand.add(brandLabel, BorderLayout.CENTER);
-        brand.add(collapseButton, BorderLayout.EAST);
-        brand.setBorder(BorderFactory.createEmptyBorder(0, 4, 18, 4));
-        add(brand);
+
+        JPanel brandHeader = new JPanel(new BorderLayout(8, 0));
+        brandHeader.setOpaque(false);
+        brand.add(logoBadge);
+        brand.add(brandLabel);
+        brandHeader.add(brand, BorderLayout.CENTER);
+        brandHeader.add(collapseButton, BorderLayout.EAST);
+        brandHeader.setBorder(BorderFactory.createEmptyBorder(0, 4, 18, 4));
+        add(brandHeader);
 
         for (ScreenId id : ScreenId.values()) {
             String icon = iconFor(id);
@@ -107,10 +120,10 @@ public class SidebarNavigation extends JPanel {
 
     private static String iconFor(ScreenId id) {
         return switch (id) {
-            case DASHBOARD -> "⌂";
-            case TRADING -> "↗";
-            case BOT -> "◉";
-            case HISTORY -> "◷";
+            case DASHBOARD -> "■";
+            case TRADING -> "▶";
+            case BOT -> "●";
+            case HISTORY -> "⏱";
             case PENDING_ORDERS -> "≡";
             case SETTINGS -> "⚙";
         };

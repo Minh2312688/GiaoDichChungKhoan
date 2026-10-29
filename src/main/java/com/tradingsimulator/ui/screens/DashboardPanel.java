@@ -45,7 +45,9 @@ public class DashboardPanel extends JPanel {
         // Bên trái: Ô tìm kiếm CK
         JPanel searchBox = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
         searchBox.setOpaque(false);
-        JLabel searchIcon = new JLabel("🔍");
+        JLabel searchIcon = new JLabel("TIM:");
+        searchIcon.setFont(new Font("Segoe UI", Font.BOLD, 10));
+        searchIcon.setForeground(new Color(0x84, 0x8e, 0x9c));
         JTextField searchField = new JTextField(12);
         searchField.setBackground(new Color(0x22, 0x26, 0x30));
         searchField.setForeground(Color.WHITE);
@@ -207,6 +209,10 @@ public class DashboardPanel extends JPanel {
 
     public PortfolioPanel getPortfolioPanel() {
         return portfolioPanel;
+    }
+
+    public MarketIndicesPanel getIndicesPanel() {
+        return indicesPanel;
     }
 
     public void onTradeRequest(Consumer<String> listener) {

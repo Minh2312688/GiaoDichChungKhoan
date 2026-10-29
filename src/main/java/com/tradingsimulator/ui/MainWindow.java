@@ -147,7 +147,7 @@ public final class MainWindow extends JFrame {
     JPanel userPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
     userPanel.setOpaque(false);
 
-    userBadgeLabel = new JLabel("👤 Demo Trader (demo)");
+    userBadgeLabel = new JLabel("Demo Trader (demo)");
     userBadgeLabel.setFont(userBadgeLabel.getFont().deriveFont(Font.BOLD, 12f));
     userBadgeLabel.setForeground(new Color(0xea, 0xec, 0xef));
 
@@ -214,6 +214,8 @@ public final class MainWindow extends JFrame {
 
   private void onSessionQuote(Quote quote) {
     dashboardPanel.setQuote(quote.symbol(), quote.bid().toPlainString(), quote.ask().toPlainString());
+    dashboardPanel.getIndicesPanel().updateQuote(quote.symbol(),
+        quote.last().subtract(quote.bid()).doubleValue() >= 0 ? 0.35 : -0.35);
     tradingPanel.showQuote(quote);
     dashboardPanel.showCash(facade.cash().setScale(2, RoundingMode.HALF_UP).toPlainString());
     dashboardPanel.showPositions(facade.positions());
@@ -387,7 +389,7 @@ public final class MainWindow extends JFrame {
     }
     this.currentUser = user;
     if (userBadgeLabel != null) {
-      userBadgeLabel.setText("👤 " + user.getFullName() + " (" + user.getUsername() + " · " + user.getEmail() + ")");
+      userBadgeLabel.setText(user.getFullName() + " (" + user.getUsername() + " \u00B7 " + user.getEmail() + ")");
     }
     if (user.getPortfolio() != null) {
       Map<String, Quote> targetQuotes = (user.getPortfolio().quotes() == null || user.getPortfolio().quotes().isEmpty())

@@ -33,7 +33,7 @@ public class SidebarNavigation extends JPanel {
         brand.setOpaque(false);
         brand.setBorder(new EmptyBorder(12, 10, 10, 10));
 
-        brandLabel = new JLabel(" SSI iBoard", new LogoIcon(18), SwingConstants.LEFT);
+        brandLabel = new JLabel(" TradeSim", new LogoIcon(18), SwingConstants.LEFT);
         brandLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
         brandLabel.setForeground(new Color(245, 158, 11)); // Amber Gold
         brand.add(brandLabel, BorderLayout.CENTER);
@@ -164,7 +164,7 @@ public class SidebarNavigation extends JPanel {
             }
         } else {
             setPreferredSize(new Dimension(165, 0));
-            brandLabel.setText(" SSI iBoard");
+            brandLabel.setText(" TradeSim");
             liveLabel.setText("● LIVE HOSE");
             toggleBtn.setText("«");
             for (Map.Entry<ScreenId, JButton> entry : buttons.entrySet()) {
@@ -196,7 +196,7 @@ public class SidebarNavigation extends JPanel {
             g2.fillRoundRect(x, y, size, size, 4, 4);
             g2.setColor(Color.BLACK);
             g2.setFont(new Font("Segoe UI", Font.BOLD, 11));
-            g2.drawString("S", x + 5, y + size - 4);
+            g2.drawString("T", x + 5, y + size - 4);
             g2.dispose();
         }
 

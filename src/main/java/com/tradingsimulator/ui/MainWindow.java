@@ -386,7 +386,7 @@ public final class MainWindow extends JFrame {
     }
     this.currentUser = user;
     if (userBadgeLabel != null) {
-      userBadgeLabel.setText("👤 " + user.getFullName() + " (" + user.getUsername() + ")");
+      userBadgeLabel.setText("👤 " + user.getFullName() + " (" + user.getUsername() + " · " + user.getEmail() + ")");
     }
     if (user.getPortfolio() != null) {
       Map<String, Quote> targetQuotes = (user.getPortfolio().quotes() == null || user.getPortfolio().quotes().isEmpty())

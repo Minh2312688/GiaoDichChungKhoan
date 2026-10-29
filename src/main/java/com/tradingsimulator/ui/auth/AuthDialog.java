@@ -393,12 +393,26 @@ public class AuthDialog extends JDialog {
     private void handleGmailLogin() {
         loginErrorLabel.setText(" ");
         String identifier = loginUsernameField.getText().trim();
+        if (!identifier.toLowerCase().endsWith("@gmail.com")) {
+            String input = JOptionPane.showInputDialog(
+                this,
+                "Nhập địa chỉ Gmail thật của bạn để đăng nhập:",
+                "Đăng nhập với Gmail",
+                JOptionPane.QUESTION_MESSAGE
+            );
+            if (input == null || input.trim().isEmpty()) {
+                return;
+            }
+            identifier = input.trim();
+            loginUsernameField.setText(identifier);
+        }
+
         try {
             User user = authService.loginWithGoogle(identifier);
             this.authenticated = true;
             this.authenticatedUser = user;
             dispose();
-        } catch (Exception ex) {
+        } catch (IllegalArgumentException ex) {
             loginErrorLabel.setText("⚠ " + ex.getMessage());
         }
     }

@@ -76,17 +76,21 @@ public class TestAuth {
 
     @Test
     void testLoginWithGoogleSimulation() {
-        // Mặc định đăng nhập vào demo user
-        User user = authService.loginWithGoogle("");
+        // Đăng nhập vào demo user bằng demo gmail
+        User user = authService.loginWithGoogle("demo.trader@gmail.com");
         assertNotNull(user);
         assertEquals("demo", user.getUsername());
         assertEquals("demo.trader@gmail.com", user.getEmail());
 
-        // Đăng nhập với Gmail mới tự động tạo tài khoản
+        // Đăng nhập với Gmail thật mới tự động tạo và kích hoạt tài khoản
         User newUser = authService.loginWithGoogle("investor99@gmail.com");
         assertNotNull(newUser);
         assertEquals("investor99", newUser.getUsername());
         assertEquals("investor99@gmail.com", newUser.getEmail());
+
+        // Báo lỗi nếu định dạng Gmail không hợp lệ
+        assertThrows(IllegalArgumentException.class, () -> authService.loginWithGoogle("invalid-email"));
+        assertThrows(IllegalArgumentException.class, () -> authService.loginWithGoogle(""));
     }
 
     @Test

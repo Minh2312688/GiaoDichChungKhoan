@@ -113,20 +113,29 @@ public final class AuthService {
     }
 
     /**
-     * Đăng nhập thông qua Gmail (Google SSO simulation).
-     * Mặc định đăng nhập vào tài khoản demo nếu để trống.
+     * Đăng nhập thông qua Gmail thật.
+     * Tự động nhận diện hoặc kích hoạt tài khoản theo Gmail thật của người dùng.
      */
     public synchronized User loginWithGoogle(String email) {
-        String targetEmail = (email != null && !email.trim().isEmpty() && email.contains("@"))
-            ? email.trim()
-            : "demo.trader@gmail.com";
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("Vui lòng nhập địa chỉ Gmail thật.");
+        }
+        String targetEmail = email.trim().toLowerCase();
+        if (!targetEmail.endsWith("@gmail.com") || targetEmail.length() <= 10) {
+            throw new IllegalArgumentException("Vui lòng nhập đúng định dạng Gmail (...@gmail.com).");
+        }
         User user = users.values().stream()
             .filter(u -> u.getEmail() != null && u.getEmail().equalsIgnoreCase(targetEmail))
             .findFirst()
             .orElse(null);
         if (user == null) {
-            String uname = targetEmail.split("@")[0].toLowerCase();
-            user = register(uname, targetEmail, "123", uname + " (Gmail)");
+            String uname = targetEmail.substring(0, targetEmail.indexOf('@')).toLowerCase();
+            String finalUname = uname;
+            int counter = 1;
+            while (users.containsKey(finalUname)) {
+                finalUname = uname + counter++;
+            }
+            user = register(finalUname, targetEmail, "123", uname);
         }
         this.currentUser = user;
         return user;

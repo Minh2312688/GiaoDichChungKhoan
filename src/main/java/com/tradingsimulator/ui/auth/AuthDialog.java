@@ -36,6 +36,7 @@ public class AuthDialog extends JDialog {
 
     // Register Form Fields
     private JTextField regUsernameField;
+    private JTextField regEmailField;
     private JTextField regFullNameField;
     private JPasswordField regPasswordField;
     private JPasswordField regConfirmPasswordField;
@@ -55,13 +56,13 @@ public class AuthDialog extends JDialog {
 
         JPanel root = new JPanel(new BorderLayout(0, 0));
         root.setBackground(BG_COLOR);
-        root.setBorder(new EmptyBorder(20, 24, 20, 24));
+        root.setBorder(new EmptyBorder(18, 24, 18, 24));
 
         // 1. Header Banner
         JPanel headerPanel = new JPanel();
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
         headerPanel.setOpaque(false);
-        headerPanel.setBorder(new EmptyBorder(0, 0, 16, 0));
+        headerPanel.setBorder(new EmptyBorder(0, 0, 14, 0));
 
         JLabel titleLabel = new JLabel("◆ TRADING SIMULATOR");
         titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 20f));
@@ -100,8 +101,8 @@ public class AuthDialog extends JDialog {
         panel.setBackground(PANEL_COLOR);
         panel.setBorder(new EmptyBorder(16, 16, 16, 16));
 
-        // Tên đăng nhập
-        JLabel userLabel = new JLabel("Tên đăng nhập:");
+        // Tên đăng nhập hoặc Gmail
+        JLabel userLabel = new JLabel("Tên đăng nhập hoặc Gmail:");
         userLabel.setForeground(TEXT_LIGHT);
         userLabel.setFont(userLabel.getFont().deriveFont(Font.BOLD, 12f));
         userLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -176,11 +177,11 @@ public class AuthDialog extends JDialog {
         infoTitle.setFont(infoTitle.getFont().deriveFont(Font.BOLD, 11f));
         infoTitle.setForeground(GOLD);
 
-        JLabel infoRow1 = new JLabel("• Tài khoản: demo / Mật khẩu: 123 (Số dư: $25,000.00)");
+        JLabel infoRow1 = new JLabel("• Tài khoản: demo (hoặc demo.trader@gmail.com) / Mật khẩu: 123");
         infoRow1.setFont(infoRow1.getFont().deriveFont(Font.PLAIN, 11f));
         infoRow1.setForeground(TEXT_LIGHT);
 
-        JLabel infoRow2 = new JLabel("• Chứng khoán đang giữ: AAPL (50 cp), BTC (1 coin), ETH (5 coin)");
+        JLabel infoRow2 = new JLabel("• Tiền mặt $25,000, đang giữ AAPL (50), BTC (1), ETH (5)");
         infoRow2.setFont(infoRow2.getFont().deriveFont(Font.PLAIN, 11f));
         infoRow2.setForeground(TEXT_LIGHT);
 
@@ -230,7 +231,7 @@ public class AuthDialog extends JDialog {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBackground(PANEL_COLOR);
-        panel.setBorder(new EmptyBorder(16, 16, 16, 16));
+        panel.setBorder(new EmptyBorder(14, 16, 14, 16));
 
         // Tên đăng nhập
         JLabel userLabel = new JLabel("Tên đăng nhập:");
@@ -239,12 +240,26 @@ public class AuthDialog extends JDialog {
         userLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         regUsernameField = new JTextField();
-        regUsernameField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
-        regUsernameField.setPreferredSize(new Dimension(360, 36));
+        regUsernameField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 34));
+        regUsernameField.setPreferredSize(new Dimension(360, 34));
         regUsernameField.setBackground(new Color(0x2b, 0x31, 0x3a));
         regUsernameField.setForeground(Color.WHITE);
         regUsernameField.setCaretColor(GOLD);
         regUsernameField.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        // Gmail
+        JLabel emailLabel = new JLabel("Gmail:");
+        emailLabel.setForeground(TEXT_LIGHT);
+        emailLabel.setFont(emailLabel.getFont().deriveFont(Font.BOLD, 12f));
+        emailLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        regEmailField = new JTextField();
+        regEmailField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 34));
+        regEmailField.setPreferredSize(new Dimension(360, 34));
+        regEmailField.setBackground(new Color(0x2b, 0x31, 0x3a));
+        regEmailField.setForeground(Color.WHITE);
+        regEmailField.setCaretColor(GOLD);
+        regEmailField.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         // Họ tên
         JLabel nameLabel = new JLabel("Họ và tên nhà đầu tư:");
@@ -253,8 +268,8 @@ public class AuthDialog extends JDialog {
         nameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         regFullNameField = new JTextField();
-        regFullNameField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
-        regFullNameField.setPreferredSize(new Dimension(360, 36));
+        regFullNameField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 34));
+        regFullNameField.setPreferredSize(new Dimension(360, 34));
         regFullNameField.setBackground(new Color(0x2b, 0x31, 0x3a));
         regFullNameField.setForeground(Color.WHITE);
         regFullNameField.setCaretColor(GOLD);
@@ -267,8 +282,8 @@ public class AuthDialog extends JDialog {
         passLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         regPasswordField = new JPasswordField();
-        regPasswordField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
-        regPasswordField.setPreferredSize(new Dimension(360, 36));
+        regPasswordField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 34));
+        regPasswordField.setPreferredSize(new Dimension(360, 34));
         regPasswordField.setBackground(new Color(0x2b, 0x31, 0x3a));
         regPasswordField.setForeground(Color.WHITE);
         regPasswordField.setCaretColor(GOLD);
@@ -281,8 +296,8 @@ public class AuthDialog extends JDialog {
         confirmPassLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         regConfirmPasswordField = new JPasswordField();
-        regConfirmPasswordField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
-        regConfirmPasswordField.setPreferredSize(new Dimension(360, 36));
+        regConfirmPasswordField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 34));
+        regConfirmPasswordField.setPreferredSize(new Dimension(360, 34));
         regConfirmPasswordField.setBackground(new Color(0x2b, 0x31, 0x3a));
         regConfirmPasswordField.setForeground(Color.WHITE);
         regConfirmPasswordField.setCaretColor(GOLD);
@@ -299,8 +314,8 @@ public class AuthDialog extends JDialog {
         regButton.setBackground(GREEN);
         regButton.setForeground(Color.WHITE);
         regButton.setFocusPainted(false);
-        regButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-        regButton.setPreferredSize(new Dimension(360, 40));
+        regButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
+        regButton.setPreferredSize(new Dimension(360, 38));
         regButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         regButton.setAlignmentX(Component.LEFT_ALIGNMENT);
         regButton.addActionListener(e -> handleRegister());
@@ -311,10 +326,10 @@ public class AuthDialog extends JDialog {
         noteCard.setBackground(BG_COLOR);
         noteCard.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(BORDER_COLOR),
-            new EmptyBorder(8, 12, 8, 12)
+            new EmptyBorder(6, 12, 6, 12)
         ));
         noteCard.setAlignmentX(Component.LEFT_ALIGNMENT);
-        noteCard.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+        noteCard.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
 
         JLabel noteText = new JLabel("ℹ️ Tài khoản đăng ký mới sẽ nhận ngay $10,000.00 tiền vốn ban đầu.");
         noteText.setFont(noteText.getFont().deriveFont(Font.PLAIN, 11f));
@@ -330,30 +345,35 @@ public class AuthDialog extends JDialog {
             }
         };
         regUsernameField.addKeyListener(enterKey);
+        regEmailField.addKeyListener(enterKey);
         regFullNameField.addKeyListener(enterKey);
         regPasswordField.addKeyListener(enterKey);
         regConfirmPasswordField.addKeyListener(enterKey);
 
         panel.add(userLabel);
-        panel.add(Box.createVerticalStrut(4));
+        panel.add(Box.createVerticalStrut(3));
         panel.add(regUsernameField);
-        panel.add(Box.createVerticalStrut(8));
+        panel.add(Box.createVerticalStrut(6));
+        panel.add(emailLabel);
+        panel.add(Box.createVerticalStrut(3));
+        panel.add(regEmailField);
+        panel.add(Box.createVerticalStrut(6));
         panel.add(nameLabel);
-        panel.add(Box.createVerticalStrut(4));
+        panel.add(Box.createVerticalStrut(3));
         panel.add(regFullNameField);
-        panel.add(Box.createVerticalStrut(8));
+        panel.add(Box.createVerticalStrut(6));
         panel.add(passLabel);
-        panel.add(Box.createVerticalStrut(4));
+        panel.add(Box.createVerticalStrut(3));
         panel.add(regPasswordField);
-        panel.add(Box.createVerticalStrut(8));
+        panel.add(Box.createVerticalStrut(6));
         panel.add(confirmPassLabel);
-        panel.add(Box.createVerticalStrut(4));
+        panel.add(Box.createVerticalStrut(3));
         panel.add(regConfirmPasswordField);
-        panel.add(Box.createVerticalStrut(4));
+        panel.add(Box.createVerticalStrut(3));
         panel.add(regMessageLabel);
-        panel.add(Box.createVerticalStrut(8));
+        panel.add(Box.createVerticalStrut(6));
         panel.add(regButton);
-        panel.add(Box.createVerticalStrut(10));
+        panel.add(Box.createVerticalStrut(8));
         panel.add(noteCard);
 
         return panel;
@@ -361,11 +381,11 @@ public class AuthDialog extends JDialog {
 
     private void handleLogin() {
         loginErrorLabel.setText(" ");
-        String username = loginUsernameField.getText().trim();
+        String identifier = loginUsernameField.getText().trim();
         String password = new String(loginPasswordField.getPassword());
 
         try {
-            User user = authService.login(username, password);
+            User user = authService.login(identifier, password);
             this.authenticated = true;
             this.authenticatedUser = user;
             dispose();
@@ -379,6 +399,7 @@ public class AuthDialog extends JDialog {
         regMessageLabel.setText(" ");
 
         String username = regUsernameField.getText().trim();
+        String email = regEmailField.getText().trim();
         String fullName = regFullNameField.getText().trim();
         String password = new String(regPasswordField.getPassword());
         String confirm = new String(regConfirmPasswordField.getPassword());
@@ -397,7 +418,7 @@ public class AuthDialog extends JDialog {
         }
 
         try {
-            User newUser = authService.register(username, password, fullName);
+            User newUser = authService.register(username, email, password, fullName);
             regMessageLabel.setForeground(GREEN);
             regMessageLabel.setText("✔ Đăng ký thành công! Đã tự động đăng nhập...");
 
@@ -434,6 +455,10 @@ public class AuthDialog extends JDialog {
 
     public JTextField getRegUsernameField() {
         return regUsernameField;
+    }
+
+    public JTextField getRegEmailField() {
+        return regEmailField;
     }
 
     public JPasswordField getRegPasswordField() {

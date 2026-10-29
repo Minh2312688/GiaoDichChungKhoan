@@ -4,7 +4,6 @@ import com.tradingsimulator.model.Order;
 import com.tradingsimulator.model.OrderSide;
 import com.tradingsimulator.model.OrderType;
 import com.tradingsimulator.model.Position;
-import com.tradingsimulator.model.Quote;
 import com.tradingsimulator.model.Trade;
 import com.tradingsimulator.validationandportfolio.PortfolioMemento;
 
@@ -45,11 +44,11 @@ public final class AuthService {
     }
 
     /**
-     * Tạo tài khoản demo "demo" / "123" với danh mục mẫu phong phú.
+     * Tạo tài khoản demo "demo" / "demo.trader@gmail.com" / "123" với danh mục mẫu phong phú.
      */
     public static User createDemoUser() {
         PortfolioMemento demoPortfolio = createDemoPortfolio();
-        return new User("demo", "123", "Nguyễn Văn Demo (Trader)", demoPortfolio);
+        return new User("demo", "demo.trader@gmail.com", "123", "Nguyễn Văn Demo (Trader)", demoPortfolio);
     }
 
     /**
@@ -92,31 +91,48 @@ public final class AuthService {
     }
 
     /**
-     * Đăng nhập với username và password.
+     * Đăng nhập với username hoặc Gmail và mật khẩu.
      */
-    public synchronized User login(String username, String password) {
-        if (username == null || username.trim().isEmpty() || password == null) {
-            throw new IllegalArgumentException("Vui lòng nhập tên đăng nhập và mật khẩu.");
+    public synchronized User login(String identifier, String password) {
+        if (identifier == null || identifier.trim().isEmpty() || password == null) {
+            throw new IllegalArgumentException("Vui lòng nhập tên đăng nhập/Gmail và mật khẩu.");
         }
-        User user = users.get(username.trim().toLowerCase());
+        String key = identifier.trim().toLowerCase();
+        User user = users.get(key);
+        if (user == null) {
+            user = users.values().stream()
+                .filter(u -> u.getEmail() != null && u.getEmail().equalsIgnoreCase(key))
+                .findFirst()
+                .orElse(null);
+        }
         if (user == null || !user.getPassword().equals(password)) {
-            throw new IllegalArgumentException("Tên đăng nhập hoặc mật khẩu không chính xác.");
+            throw new IllegalArgumentException("Tên đăng nhập/Gmail hoặc mật khẩu không chính xác.");
         }
         this.currentUser = user;
         return user;
     }
 
     /**
-     * Đăng ký tài khoản mới.
+     * Đăng ký tài khoản mới với username, email/gmail, password, fullName.
      * Cấp số dư ban đầu $10,000.00, danh mục và lịch sử trống.
      */
-    public synchronized User register(String username, String password, String fullName) {
+    public synchronized User register(String username, String email, String password, String fullName) {
         if (username == null || username.trim().isEmpty()) {
             throw new IllegalArgumentException("Tên đăng nhập không được để trống.");
         }
         String key = username.trim().toLowerCase();
         if (users.containsKey(key)) {
             throw new IllegalArgumentException("Tên đăng nhập đã tồn tại. Vui lòng chọn tên khác.");
+        }
+        String mail = (email != null && !email.trim().isEmpty()) ? email.trim() : key + "@gmail.com";
+        if (!mail.contains("@")) {
+            mail = mail + "@gmail.com";
+        }
+        final String finalMail = mail;
+        boolean emailExists = users.values().stream()
+            .anyMatch(u -> u.getEmail() != null && u.getEmail().equalsIgnoreCase(finalMail));
+        if (emailExists) {
+            throw new IllegalArgumentException("Gmail/Email này đã được sử dụng. Vui lòng chọn email khác.");
         }
         if (password == null || password.length() < 3) {
             throw new IllegalArgumentException("Mật khẩu phải có ít nhất 3 ký tự.");
@@ -129,9 +145,13 @@ public final class AuthService {
             Map.of(),
             List.of()
         );
-        User newUser = new User(key, password, name, freshPortfolio);
+        User newUser = new User(key, finalMail, password, name, freshPortfolio);
         users.put(key, newUser);
         return newUser;
+    }
+
+    public synchronized User register(String username, String password, String fullName) {
+        return register(username, username + "@gmail.com", password, fullName);
     }
 
     public synchronized Optional<User> getCurrentUser() {

@@ -28,6 +28,7 @@ public class TestAuth {
         User demoUser = authService.getDemoUser();
         assertNotNull(demoUser, "Tài khoản demo phải tồn tại");
         assertEquals("demo", demoUser.getUsername());
+        assertEquals("demo.trader@gmail.com", demoUser.getEmail());
         assertEquals("123", demoUser.getPassword());
         assertTrue(demoUser.getFullName().contains("Demo"));
 
@@ -66,6 +67,14 @@ public class TestAuth {
     }
 
     @Test
+    void testLoginWithGmail() {
+        User user = authService.login("demo.trader@gmail.com", "123");
+        assertNotNull(user);
+        assertEquals("demo", user.getUsername());
+        assertEquals("demo.trader@gmail.com", user.getEmail());
+    }
+
+    @Test
     void testLoginCaseInsensitiveUsername() {
         User user = authService.login("DEMO", "123");
         assertNotNull(user);
@@ -84,9 +93,10 @@ public class TestAuth {
 
     @Test
     void testRegisterSuccess() {
-        User newUser = authService.register("trader1", "pass123", "Trader Nguyen");
+        User newUser = authService.register("trader1", "trader1@gmail.com", "pass123", "Trader Nguyen");
         assertNotNull(newUser);
         assertEquals("trader1", newUser.getUsername());
+        assertEquals("trader1@gmail.com", newUser.getEmail());
         assertEquals("pass123", newUser.getPassword());
         assertEquals("Trader Nguyen", newUser.getFullName());
 
@@ -98,19 +108,27 @@ public class TestAuth {
         assertTrue(portfolio.trades().isEmpty());
         assertTrue(portfolio.pendingOrders().isEmpty());
 
-        // Đăng nhập lại với tài khoản vừa tạo
-        User loggedIn = authService.login("trader1", "pass123");
-        assertEquals("trader1", loggedIn.getUsername());
+        // Đăng nhập lại với tài khoản vừa tạo qua username và qua Gmail
+        User loggedInUser = authService.login("trader1", "pass123");
+        assertEquals("trader1", loggedInUser.getUsername());
+
+        User loggedInEmail = authService.login("trader1@gmail.com", "pass123");
+        assertEquals("trader1", loggedInEmail.getUsername());
     }
 
     @Test
     void testRegisterDuplicateUsernameFails() {
-        assertThrows(IllegalArgumentException.class, () -> authService.register("demo", "newpass", "Demo"));
+        assertThrows(IllegalArgumentException.class, () -> authService.register("demo", "demo2@gmail.com", "newpass", "Demo"));
+    }
+
+    @Test
+    void testRegisterDuplicateEmailFails() {
+        assertThrows(IllegalArgumentException.class, () -> authService.register("newuser", "demo.trader@gmail.com", "newpass", "Demo"));
     }
 
     @Test
     void testRegisterShortPasswordFails() {
-        assertThrows(IllegalArgumentException.class, () -> authService.register("trader2", "12", "Trader"));
+        assertThrows(IllegalArgumentException.class, () -> authService.register("trader2", "trader2@gmail.com", "12", "Trader"));
     }
 
     @Test
@@ -126,7 +144,7 @@ public class TestAuth {
         assertEquals(new BigDecimal("25000.00"), window.getFacade().cash());
 
         // Chuyển sang người dùng mới
-        User newUser = authService.register("testuser", "123", "Test User");
+        User newUser = authService.register("testuser", "test@gmail.com", "123", "Test User");
         window.applyUser(newUser);
 
         assertEquals("testuser", window.getCurrentUser().getUsername());
@@ -146,6 +164,7 @@ public class TestAuth {
         assertEquals(2, dialog.getTabbedPane().getTabCount());
         assertEquals("demo", dialog.getLoginUsernameField().getText());
         assertEquals("123", new String(dialog.getLoginPasswordField().getPassword()));
+        assertNotNull(dialog.getRegEmailField());
         assertFalse(dialog.isAuthenticated());
         dialog.dispose();
     }

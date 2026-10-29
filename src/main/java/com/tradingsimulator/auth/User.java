@@ -1,0 +1,52 @@
+package com.tradingsimulator.auth;
+
+import com.tradingsimulator.validationandportfolio.PortfolioMemento;
+
+/**
+ * Đại diện cho thông tin người dùng trong hệ thống mô phỏng giao dịch.
+ * Lưu trữ thông tin tài khoản và snapshot danh mục đầu tư (Memento) tương ứng.
+ */
+public class User {
+    private final String username;
+    private String password;
+    private String fullName;
+    private PortfolioMemento portfolio;
+
+    public User(String username, String password, String fullName, PortfolioMemento portfolio) {
+        if (username == null || username.isBlank()) {
+            throw new IllegalArgumentException("Tên đăng nhập không được để trống");
+        }
+        this.username = username;
+        this.password = password != null ? password : "";
+        this.fullName = (fullName != null && !fullName.isBlank()) ? fullName : username;
+        this.portfolio = portfolio;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public PortfolioMemento getPortfolio() {
+        return portfolio;
+    }
+
+    public void setPortfolio(PortfolioMemento portfolio) {
+        this.portfolio = portfolio;
+    }
+}

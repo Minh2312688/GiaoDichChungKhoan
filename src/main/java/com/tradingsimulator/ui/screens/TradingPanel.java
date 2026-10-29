@@ -5,6 +5,8 @@ import com.tradingsimulator.model.Quote;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Path2D;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -13,11 +15,8 @@ import java.util.List;
 
 /**
  * Màn hình Đặt lệnh kết hợp Biểu đồ kỹ thuật nến Nhật (Candlestick Chart) chuẩn TradingView / KIS.
- * Bao gồm:
- * - Nến xanh (Tăng) / Nến đỏ (Giảm) với bấc nến (High/Low wick) và thân nến (Open/Close body).
- * - Đường chỉ báo kỹ thuật Moving Average (MA9).
- * - Cột khối lượng giao dịch (Volume bar chart) ở đáy biểu đồ.
- * - Thước đo lưới tọa độ, mức giá cao nhất/thấp nhất và thanh trạng thái O H L C.
+ * Hỗ trợ chọn/đổi mã chứng khoán trực tiếp bằng cách nhấn vào tiêu đề mã trên góc biểu đồ
+ * hoặc chọn từ form đặt lệnh bên phải.
  */
 public class TradingPanel extends JPanel {
     private final OrderFormPanel orderForm;
@@ -32,10 +31,13 @@ public class TradingPanel extends JPanel {
         setBorder(BorderFactory.createEmptyBorder(18, 18, 18, 18));
         setBackground(new Color(0x11, 0x13, 0x17));
 
-        orderForm = new OrderFormPanel(symbols);
-        priceChart = new CandlestickPriceChart();
+        Set<String> allSymbols = new LinkedHashSet<>(symbols);
+        allSymbols.addAll(List.of("AAPL", "BTC", "ETH", "ACB", "BID", "BSR", "CTG", "FPT", "GAS", "GVR", "HDB", "HPG", "MBB", "MWG", "SSI", "TCB", "VIC", "VNM", "VPB"));
+
+        orderForm = new OrderFormPanel(allSymbols);
+        priceChart = new CandlestickPriceChart(allSymbols, orderForm::setSymbol);
         orderForm.addSymbolSelectionListener(priceChart::selectSymbol);
-        if (!symbols.isEmpty()) {
+        if (!allSymbols.isEmpty()) {
             priceChart.selectSymbol(orderForm.getSymbol());
         }
 
@@ -102,19 +104,61 @@ public class TradingPanel extends JPanel {
 
         private final Map<String, List<Candle>> candlesBySymbol = new HashMap<>();
         private final Map<String, Quote> quotes = new HashMap<>();
+        private final java.util.function.Consumer<String> onSymbolChange;
+        private final JComboBox<String> symbolDropdown;
+        private final JPanel topControlsPanel;
         private String selectedSymbol;
         private Quote selectedQuote;
         private int tickCounter = 0;
 
-        private CandlestickPriceChart() {
+        private CandlestickPriceChart(Collection<String> availableSymbols, java.util.function.Consumer<String> onSymbolChange) {
+            this.onSymbolChange = onSymbolChange;
+            setLayout(new BorderLayout());
             setOpaque(true);
             setBackground(BG_CHART);
             setPreferredSize(new Dimension(580, 420));
+
+            // Thanh công cụ chọn mã chứng khoán trực tiếp ở góc trên sơ đồ
+            topControlsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
+            topControlsPanel.setOpaque(false);
+
+            symbolDropdown = new JComboBox<>(new Vector<>(availableSymbols));
+            symbolDropdown.setFont(new Font("Segoe UI", Font.BOLD, 13));
+            symbolDropdown.setBackground(new Color(0x2a, 0x2e, 0x39));
+            symbolDropdown.setForeground(Color.WHITE);
+            symbolDropdown.setFocusable(false);
+            symbolDropdown.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            symbolDropdown.setToolTipText("Nhấn vào đây để chọn loại chứng khoán cần xem biểu đồ");
+            symbolDropdown.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(new Color(0x36, 0x3c, 0x4e)),
+                    BorderFactory.createEmptyBorder(2, 6, 2, 6)
+            ));
+
+            symbolDropdown.addActionListener(e -> {
+                String chosen = (String) symbolDropdown.getSelectedItem();
+                if (chosen != null && !chosen.equals(selectedSymbol)) {
+                    selectSymbol(chosen);
+                    if (this.onSymbolChange != null) {
+                        this.onSymbolChange.accept(chosen);
+                    }
+                }
+            });
+
+            JLabel timeframeLabel = new JLabel("1D \u00B7 HOSE");
+            timeframeLabel.setFont(new Font("Segoe UI", Font.BOLD, 11));
+            timeframeLabel.setForeground(new Color(0x29, 0x62, 0xff));
+
+            topControlsPanel.add(symbolDropdown);
+            topControlsPanel.add(timeframeLabel);
+            add(topControlsPanel, BorderLayout.NORTH);
         }
 
         private void selectSymbol(String symbol) {
             this.selectedSymbol = symbol;
             this.selectedQuote = quotes.get(symbol);
+            if (symbolDropdown != null && !Objects.equals(symbolDropdown.getSelectedItem(), symbol)) {
+                symbolDropdown.setSelectedItem(symbol);
+            }
             if (!candlesBySymbol.containsKey(symbol)) {
                 generateInitialCandles(symbol, selectedQuote != null ? selectedQuote.last().doubleValue() : 100.0);
             }
@@ -134,7 +178,6 @@ public class TradingPanel extends JPanel {
                 Candle current = list.get(list.size() - 1);
                 current.update(price);
 
-                // Cứ sau một số nhịp tick thì hoàn thành một nến và bắt đầu nến mới
                 tickCounter++;
                 if (tickCounter % 5 == 0) {
                     double nextOpen = current.close;
@@ -165,7 +208,6 @@ public class TradingPanel extends JPanel {
                 list.add(new Candle(open, high, low, close, vol));
                 p = close;
             }
-            // Nến cuối cùng neo với giá hiện tại
             list.add(new Candle(p, Math.max(p, currentPrice), Math.min(p, currentPrice), currentPrice, 12000));
             return list;
         }
@@ -185,8 +227,8 @@ public class TradingPanel extends JPanel {
                 int h = getHeight();
 
                 // 1. Header thông tin O H L C và chỉ báo MA
-                int topBarHeight = 44;
-                paintHeader(g, w);
+                int topBarHeight = 56;
+                paintHeaderStats(g, w);
 
                 // Khu vực vẽ biểu đồ nến và volume
                 int left = 14;
@@ -234,7 +276,6 @@ public class TradingPanel extends JPanel {
                     Candle c = candles.get(i);
                     double cx = left + i * slotWidth + slotWidth / 2.0;
 
-                    // Tọa độ Y
                     int yHigh = (int) (chartTop + (1.0 - (c.high - minPrice) / priceRange) * priceChartH);
                     int yLow = (int) (chartTop + (1.0 - (c.low - minPrice) / priceRange) * priceChartH);
                     int yOpen = (int) (chartTop + (1.0 - (c.open - minPrice) / priceRange) * priceChartH);
@@ -243,18 +284,18 @@ public class TradingPanel extends JPanel {
                     Color candleCol = c.isUp() ? GREEN_CANDLE : RED_CANDLE;
                     g.setColor(candleCol);
 
-                    // Bấc nến (High - Low wick)
+                    // Bấc nến
                     g.setStroke(new BasicStroke(1.2f));
                     g.drawLine((int) cx, yHigh, (int) cx, yLow);
 
-                    // Thân nến (Open - Close body)
+                    // Thân nến
                     int bodyTop = Math.min(yOpen, yClose);
                     int bodyHeight = Math.max(2, Math.abs(yOpen - yClose));
                     int bodyLeft = (int) (cx - candleWidth / 2.0);
 
                     g.fillRect(bodyLeft, bodyTop, (int) candleWidth, bodyHeight);
 
-                    // Cột Volume ở phần đáy
+                    // Cột Volume
                     int volY = chartTop + priceChartH + 10;
                     int vH = (int) ((double) c.volume / maxVolume * (volHeight - 14));
                     g.setColor(new Color(candleCol.getRed(), candleCol.getGreen(), candleCol.getBlue(), 120));
@@ -284,7 +325,7 @@ public class TradingPanel extends JPanel {
                     g.draw(maPath);
                 }
 
-                // 5. Thước đo trục giá bên phải (Right Axis)
+                // 5. Thước đo trục giá bên phải
                 paintRightAxis(g, left + chartW, chartTop, priceChartH, minPrice, maxPrice,
                         candles.get(n - 1).close, candles.get(n - 1).isUp());
 
@@ -293,14 +334,8 @@ public class TradingPanel extends JPanel {
             }
         }
 
-        private void paintHeader(Graphics2D g, int w) {
-            int left = 14;
-            g.setFont(new Font("Segoe UI", Font.BOLD, 13));
-            g.setColor(TEXT_LIGHT);
-
-            String sym = selectedSymbol != null ? selectedSymbol : "AAPL";
-            g.drawString(sym + " · 1D · HOSE", left, 18);
-
+        private void paintHeaderStats(Graphics2D g, int w) {
+            int left = 175; // Bắt đầu sau dropdown chọn mã
             List<Candle> list = candlesBySymbol.get(selectedSymbol);
             if (list != null && !list.isEmpty()) {
                 Candle last = list.get(list.size() - 1);
@@ -312,37 +347,37 @@ public class TradingPanel extends JPanel {
                 String sign = diff >= 0 ? "+" : "";
                 String diffStr = String.format(Locale.US, "%s%.2f (%s%.2f%%)", sign, diff, sign, diffPct);
 
-                int x = left + 140;
+                int x = left;
                 g.setColor(TEXT_MUTED);
-                g.drawString("O ", x, 18); x += 12;
+                g.drawString("O ", x, 22); x += 12;
                 g.setColor(statusColor);
-                g.drawString(String.format(Locale.US, "%.2f", last.open), x, 18); x += 44;
+                g.drawString(String.format(Locale.US, "%.2f", last.open), x, 22); x += 44;
 
                 g.setColor(TEXT_MUTED);
-                g.drawString("H ", x, 18); x += 12;
+                g.drawString("H ", x, 22); x += 12;
                 g.setColor(statusColor);
-                g.drawString(String.format(Locale.US, "%.2f", last.high), x, 18); x += 44;
+                g.drawString(String.format(Locale.US, "%.2f", last.high), x, 22); x += 44;
 
                 g.setColor(TEXT_MUTED);
-                g.drawString("L ", x, 18); x += 12;
+                g.drawString("L ", x, 22); x += 12;
                 g.setColor(statusColor);
-                g.drawString(String.format(Locale.US, "%.2f", last.low), x, 18); x += 44;
+                g.drawString(String.format(Locale.US, "%.2f", last.low), x, 22); x += 44;
 
                 g.setColor(TEXT_MUTED);
-                g.drawString("C ", x, 18); x += 12;
+                g.drawString("C ", x, 22); x += 12;
                 g.setColor(statusColor);
-                g.drawString(String.format(Locale.US, "%.2f", last.close) + "  " + diffStr, x, 18);
+                g.drawString(String.format(Locale.US, "%.2f", last.close) + "  " + diffStr, x, 22);
 
                 // Dòng thứ hai: Khối lượng và MA9
                 g.setColor(TEXT_MUTED);
                 g.setFont(new Font("Segoe UI", Font.PLAIN, 10));
-                g.drawString("Khối lượng ", left, 34);
+                g.drawString("Khối lượng ", 14, 46);
                 g.setColor(statusColor);
-                g.drawString(String.format(Locale.US, "%,d", last.volume), left + 65, 34);
+                g.drawString(String.format(Locale.US, "%,d", last.volume), 75, 46);
 
                 g.setColor(MA_LINE_COLOR);
-                g.drawString("MA 9 close 0 ", left + 150, 34);
-                g.drawString(String.format(Locale.US, "%.2f", last.close * 0.995), left + 225, 34);
+                g.drawString("MA 9 close 0 ", 160, 46);
+                g.drawString(String.format(Locale.US, "%.2f", last.close * 0.995), 235, 46);
             }
         }
 
@@ -351,14 +386,12 @@ public class TradingPanel extends JPanel {
             g.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL,
                     0, new float[]{2, 3}, 0));
 
-            // Đường ngang
             int rows = 5;
             for (int i = 0; i <= rows; i++) {
                 int gy = y + i * h / rows;
                 g.drawLine(x, gy, x + w, gy);
             }
 
-            // Đường dọc
             int cols = 6;
             for (int i = 0; i <= cols; i++) {
                 int gx = x + i * w / cols;
@@ -378,7 +411,6 @@ public class TradingPanel extends JPanel {
                 g.drawString(String.format(Locale.US, "%.2f", p), x + 6, py + 4);
             }
 
-            // Huy hiệu giá hiện tại (Current price tag)
             int tagY = (int) (y + (1.0 - (currentPrice - min) / (max - min)) * h);
             Color tagCol = isUp ? GREEN_CANDLE : RED_CANDLE;
             g.setColor(tagCol);

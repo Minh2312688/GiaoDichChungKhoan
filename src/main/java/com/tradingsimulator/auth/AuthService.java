@@ -113,6 +113,26 @@ public final class AuthService {
     }
 
     /**
+     * Đăng nhập thông qua Gmail (Google SSO simulation).
+     * Mặc định đăng nhập vào tài khoản demo nếu để trống.
+     */
+    public synchronized User loginWithGoogle(String email) {
+        String targetEmail = (email != null && !email.trim().isEmpty() && email.contains("@"))
+            ? email.trim()
+            : "demo.trader@gmail.com";
+        User user = users.values().stream()
+            .filter(u -> u.getEmail() != null && u.getEmail().equalsIgnoreCase(targetEmail))
+            .findFirst()
+            .orElse(null);
+        if (user == null) {
+            String uname = targetEmail.split("@")[0].toLowerCase();
+            user = register(uname, targetEmail, "123", uname + " (Gmail)");
+        }
+        this.currentUser = user;
+        return user;
+    }
+
+    /**
      * Đăng ký tài khoản mới với username, email/gmail, password, fullName.
      * Cấp số dư ban đầu $10,000.00, danh mục và lịch sử trống.
      */

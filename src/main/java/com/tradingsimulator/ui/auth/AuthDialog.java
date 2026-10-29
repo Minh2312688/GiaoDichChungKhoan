@@ -146,21 +146,17 @@ public class AuthDialog extends JDialog {
         loginButton.setAlignmentX(Component.LEFT_ALIGNMENT);
         loginButton.addActionListener(e -> handleLogin());
 
-        // Nút Đăng nhập nhanh Demo
-        JButton quickDemoButton = new JButton("⚡ Đăng nhập nhanh tài khoản Demo");
-        quickDemoButton.setFont(quickDemoButton.getFont().deriveFont(Font.BOLD, 12f));
-        quickDemoButton.setBackground(new Color(0x2b, 0x31, 0x3a));
-        quickDemoButton.setForeground(GOLD);
-        quickDemoButton.setFocusPainted(false);
-        quickDemoButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
-        quickDemoButton.setPreferredSize(new Dimension(360, 36));
-        quickDemoButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        quickDemoButton.setAlignmentX(Component.LEFT_ALIGNMENT);
-        quickDemoButton.addActionListener(e -> {
-            loginUsernameField.setText("demo");
-            loginPasswordField.setText("123");
-            handleLogin();
-        });
+        // Nút Đăng nhập với Gmail
+        JButton gmailLoginButton = new JButton("G   Đăng nhập với Gmail");
+        gmailLoginButton.setFont(gmailLoginButton.getFont().deriveFont(Font.BOLD, 12f));
+        gmailLoginButton.setBackground(new Color(0xd9, 0x30, 0x25));
+        gmailLoginButton.setForeground(Color.WHITE);
+        gmailLoginButton.setFocusPainted(false);
+        gmailLoginButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
+        gmailLoginButton.setPreferredSize(new Dimension(360, 38));
+        gmailLoginButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        gmailLoginButton.setAlignmentX(Component.LEFT_ALIGNMENT);
+        gmailLoginButton.addActionListener(e -> handleGmailLogin());
 
         // Box thông tin demo
         JPanel infoCard = new JPanel();
@@ -220,7 +216,7 @@ public class AuthDialog extends JDialog {
         panel.add(Box.createVerticalStrut(8));
         panel.add(loginButton);
         panel.add(Box.createVerticalStrut(8));
-        panel.add(quickDemoButton);
+        panel.add(gmailLoginButton);
         panel.add(Box.createVerticalStrut(12));
         panel.add(infoCard);
 
@@ -390,6 +386,19 @@ public class AuthDialog extends JDialog {
             this.authenticatedUser = user;
             dispose();
         } catch (IllegalArgumentException ex) {
+            loginErrorLabel.setText("⚠ " + ex.getMessage());
+        }
+    }
+
+    private void handleGmailLogin() {
+        loginErrorLabel.setText(" ");
+        String identifier = loginUsernameField.getText().trim();
+        try {
+            User user = authService.loginWithGoogle(identifier);
+            this.authenticated = true;
+            this.authenticatedUser = user;
+            dispose();
+        } catch (Exception ex) {
             loginErrorLabel.setText("⚠ " + ex.getMessage());
         }
     }

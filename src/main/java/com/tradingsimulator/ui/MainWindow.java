@@ -17,9 +17,13 @@ import com.tradingsimulator.ui.screens.BotScreen;
 import com.tradingsimulator.ui.screens.DashboardPanel;
 import com.tradingsimulator.ui.screens.HistoryScreen;
 import com.tradingsimulator.ui.screens.PendingOrdersScreen;
+import com.tradingsimulator.auth.AuthService;
+import com.tradingsimulator.auth.User;
+import com.tradingsimulator.ui.auth.AuthDialog;
 import com.tradingsimulator.ui.screens.SettingsPanel;
 import com.tradingsimulator.ui.screens.TradingPanel;
 import com.tradingsimulator.ui.session.MarketSessionController;
+import com.tradingsimulator.validationandportfolio.PortfolioMemento;
 
 import javax.swing.*;
 import java.awt.*;
@@ -57,6 +61,8 @@ public final class MainWindow extends JFrame {
   private final JLabel cashMetric;
   private final JLabel equityMetric;
   private final JLabel pnlMetric;
+  private final JLabel userBadgeLabel;
+  private User currentUser;
   private final LivePulseIcon pulseIcon;
   private final javax.swing.Timer pulseTimer;
 
@@ -77,6 +83,9 @@ public final class MainWindow extends JFrame {
     this.symbols = initialPrices.keySet();
     this.adapter = new MarketAdapter(new RandomWalkMarketDataProvider(initialPrices, 42L));
     this.facade.setMarketAdapter(this.adapter);
+    for (String symbol : symbols) {
+      this.facade.updateQuote(this.adapter.getQuote(symbol));
+    }
 
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setLayout(new BorderLayout());
@@ -134,6 +143,34 @@ public final class MainWindow extends JFrame {
     metrics.add(metricCard("NET REALIZED", pnlMetric));
     headerPanel.add(metrics, BorderLayout.CENTER);
 
+    // Bảng thông tin người dùng và nút Đăng xuất
+    JPanel userPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+    userPanel.setOpaque(false);
+
+    userBadgeLabel = new JLabel("👤 Demo Trader (demo)");
+    userBadgeLabel.setFont(userBadgeLabel.getFont().deriveFont(Font.BOLD, 12f));
+    userBadgeLabel.setForeground(new Color(0xea, 0xec, 0xef));
+
+    JPanel userCard = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 4));
+    userCard.setBackground(new Color(0x2b, 0x31, 0x3a));
+    userCard.setBorder(BorderFactory.createCompoundBorder(
+        BorderFactory.createLineBorder(BORDER),
+        BorderFactory.createEmptyBorder(2, 8, 2, 8)));
+    userCard.add(userBadgeLabel);
+
+    JButton logoutButton = new JButton("Đăng xuất");
+    logoutButton.setFont(logoutButton.getFont().deriveFont(Font.BOLD, 11f));
+    logoutButton.setFocusPainted(false);
+    logoutButton.setBackground(new Color(0x36, 0x3d, 0x47));
+    logoutButton.setForeground(new Color(0xf6, 0x46, 0x5d));
+    logoutButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+    logoutButton.setToolTipText("Đăng xuất hoặc chuyển sang tài khoản khác");
+    logoutButton.addActionListener(event -> performLogout());
+
+    userPanel.add(userCard);
+    userPanel.add(logoutButton);
+    headerPanel.add(userPanel, BorderLayout.EAST);
+
     pulseIcon = new LivePulseIcon();
     this.statusBar = new JLabel("Đang kết nối với thị trường mô phỏng", pulseIcon, SwingConstants.LEFT);
     this.statusBar.setForeground(new Color(0x84, 0x8e, 0x9c));
@@ -161,6 +198,12 @@ public final class MainWindow extends JFrame {
 
     // 8. Khởi chạy timer phiên giao dịch qua controller
     sessionController.start(settingsPanel.refreshDelay());
+
+    // 9. Nạp người dùng mặc định kèm dữ liệu mẫu
+    User defaultUser = AuthService.getInstance().getCurrentUser().orElse(null);
+    if (defaultUser != null) {
+      applyUser(defaultUser);
+    }
 
     setMinimumSize(new Dimension(1180, 740));
     pack();
@@ -335,5 +378,56 @@ public final class MainWindow extends JFrame {
 
   public TradingFacade getFacade() {
     return facade;
+  }
+
+  public void applyUser(User user) {
+    if (user == null) {
+      return;
+    }
+    this.currentUser = user;
+    if (userBadgeLabel != null) {
+      userBadgeLabel.setText("👤 " + user.getFullName() + " (" + user.getUsername() + ")");
+    }
+    if (user.getPortfolio() != null) {
+      Map<String, Quote> targetQuotes = (user.getPortfolio().quotes() == null || user.getPortfolio().quotes().isEmpty())
+          ? facade.quotes()
+          : user.getPortfolio().quotes();
+      PortfolioMemento memento = new PortfolioMemento(
+          user.getPortfolio().cash(),
+          user.getPortfolio().positions(),
+          user.getPortfolio().trades(),
+          targetQuotes,
+          user.getPortfolio().pendingOrders()
+      );
+      facade.restore(memento);
+    }
+    refreshAllScreens();
+  }
+
+  public void performLogout() {
+    if (currentUser != null) {
+      currentUser.setPortfolio(facade.snapshot());
+    }
+    AuthService.getInstance().logout();
+
+    AuthDialog authDialog = new AuthDialog(this);
+    authDialog.setVisible(true);
+    if (authDialog.isAuthenticated()) {
+      applyUser(authDialog.getAuthenticatedUser());
+      if (statusBar != null) {
+        statusBar.setText("Đã đăng nhập: " + currentUser.getFullName() + " (" + currentUser.getUsername() + ")");
+      }
+    } else if (currentUser != null) {
+      // Giữ lại phiên hiện tại nếu đóng hộp thoại mà không đăng nhập tài khoản khác
+      AuthService.getInstance().setCurrentUser(currentUser);
+    }
+  }
+
+  public User getCurrentUser() {
+    return currentUser;
+  }
+
+  public JLabel getUserBadgeLabel() {
+    return userBadgeLabel;
   }
 }

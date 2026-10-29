@@ -208,6 +208,7 @@ public final class MainWindow extends JFrame {
     setMinimumSize(new Dimension(1180, 740));
     pack();
     setLocationByPlatform(true);
+    dashboardPanel.getPriceBoard().seedDefaultStocks();
     refreshAllScreens();
   }
 

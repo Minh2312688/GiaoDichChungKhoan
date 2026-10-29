@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -54,6 +55,7 @@ public final class PriceBoardPanel extends JPanel {
     private final Map<String, QuoteValues> previousQuotes = new HashMap<>();
     private final Map<String, Color> flashingCells = new HashMap<>();
     private final Map<String, javax.swing.Timer> flashTimers = new HashMap<>();
+    private final TableRowSorter<DefaultTableModel> rowSorter;
 
     private final JTable table = new JTable(model) {
         @Override
@@ -93,6 +95,9 @@ public final class PriceBoardPanel extends JPanel {
         table.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         table.setSelectionBackground(new Color(0x2a, 0x32, 0x40));
         table.setSelectionForeground(Color.WHITE);
+
+        rowSorter = new TableRowSorter<>(model);
+        table.setRowSorter(rowSorter);
 
         // Header
         JTableHeader header = table.getTableHeader();
@@ -263,6 +268,69 @@ public final class PriceBoardPanel extends JPanel {
 
     public JTable getTable() {
         return table;
+    }
+
+    public void filter(String query) {
+        if (query == null || query.trim().isEmpty() || query.equalsIgnoreCase("Tất cả")) {
+            rowSorter.setRowFilter(null);
+            return;
+        }
+        String q = query.trim().toUpperCase();
+        rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + q, 0));
+    }
+
+    public void filterCategory(String category) {
+        if (category == null || category.equalsIgnoreCase("Tất cả") || category.equalsIgnoreCase("Danh mục của tôi")) {
+            rowSorter.setRowFilter(null);
+            return;
+        }
+        if (category.equalsIgnoreCase("VN30")) {
+            rowSorter.setRowFilter(new RowFilter<DefaultTableModel, Integer>() {
+                private final java.util.Set<String> vn30 = java.util.Set.of(
+                    "ACB", "BCM", "BID", "BVH", "CTG", "FPT", "GAS", "GVR", "HDB", "HPG",
+                    "MBB", "MSN", "MWG", "PLX", "POW", "SAB", "SHB", "SSB", "SSI", "STB",
+                    "TCB", "TPB", "VCB", "VHM", "VIB", "VIC", "VJC", "VNM", "VPB", "VRE"
+                );
+                @Override
+                public boolean include(Entry<? extends DefaultTableModel, ? extends Integer> entry) {
+                    String symbol = entry.getStringValue(0).toUpperCase();
+                    return vn30.contains(symbol);
+                }
+            });
+            return;
+        }
+        if (category.equalsIgnoreCase("HNX30") || category.equalsIgnoreCase("HNX")) {
+            rowSorter.setRowFilter(new RowFilter<DefaultTableModel, Integer>() {
+                private final java.util.Set<String> hnx = java.util.Set.of("BSR", "SHS", "PVS", "IDC", "CEO");
+                @Override
+                public boolean include(Entry<? extends DefaultTableModel, ? extends Integer> entry) {
+                    String symbol = entry.getStringValue(0).toUpperCase();
+                    return hnx.contains(symbol);
+                }
+            });
+            return;
+        }
+        if (category.equalsIgnoreCase("HOSE")) {
+            rowSorter.setRowFilter(new RowFilter<DefaultTableModel, Integer>() {
+                @Override
+                public boolean include(Entry<? extends DefaultTableModel, ? extends Integer> entry) {
+                    String symbol = entry.getStringValue(0).toUpperCase();
+                    return !symbol.equals("BTC") && !symbol.equals("ETH");
+                }
+            });
+            return;
+        }
+        if (category.equalsIgnoreCase("Phái sinh") || category.equalsIgnoreCase("Crypto")) {
+            rowSorter.setRowFilter(new RowFilter<DefaultTableModel, Integer>() {
+                @Override
+                public boolean include(Entry<? extends DefaultTableModel, ? extends Integer> entry) {
+                    String symbol = entry.getStringValue(0).toUpperCase();
+                    return symbol.equals("BTC") || symbol.equals("ETH");
+                }
+            });
+            return;
+        }
+        rowSorter.setRowFilter(null);
     }
 
     private void flash(String symbol, int column, Color color) {

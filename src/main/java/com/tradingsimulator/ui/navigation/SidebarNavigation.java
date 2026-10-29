@@ -38,8 +38,8 @@ public class SidebarNavigation extends JPanel {
         brandLabel.setForeground(Color.WHITE);
         brandLabel.setFont(brandLabel.getFont().deriveFont(Font.BOLD, 15f));
 
-        collapseButton = new JButton("≡");
-        collapseButton.setToolTipText("Thu gọn thanh điều hướng");
+        collapseButton = new JButton("\u2261");
+        collapseButton.setToolTipText("Thu g\u1ECDn thanh \u0111i\u1EC1u h\u01B0\u1EDBng");
         collapseButton.setFocusable(false);
         collapseButton.addActionListener(event -> setCollapsed(!collapsed));
 
@@ -102,7 +102,7 @@ public class SidebarNavigation extends JPanel {
             button.setToolTipText(collapsed ? id.getTitle() : null);
             updateButton(id, button);
         });
-        collapseButton.setText(collapsed ? "»" : "☰");
+        collapseButton.setText(collapsed ? "\u00BB" : "\u2261");
         revalidate();
         repaint();
     }
@@ -120,12 +120,12 @@ public class SidebarNavigation extends JPanel {
 
     private static String iconFor(ScreenId id) {
         return switch (id) {
-            case DASHBOARD -> "■";
-            case TRADING -> "▶";
-            case BOT -> "●";
-            case HISTORY -> "⏱";
-            case PENDING_ORDERS -> "≡";
-            case SETTINGS -> "⚙";
+            case DASHBOARD -> "\u25A0";      // Black Square ■
+            case TRADING -> "\u25B6";        // Black Right-Pointing Triangle ▶
+            case BOT -> "\u25CF";            // Black Circle ●
+            case HISTORY -> "\u23F1";        // Stopwatch ⏱
+            case PENDING_ORDERS -> "\u2261"; // Identical To ≡
+            case SETTINGS -> "\u2699";       // Gear ⚙
         };
     }
 

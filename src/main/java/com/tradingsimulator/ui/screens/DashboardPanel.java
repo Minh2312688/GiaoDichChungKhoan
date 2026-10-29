@@ -28,6 +28,9 @@ public class DashboardPanel extends JPanel {
         setLayout(new BorderLayout(0, 0));
         setBackground(new Color(0x11, 0x13, 0x17));
 
+        priceBoard = new PriceBoardPanel();
+        portfolioPanel = new PortfolioPanel();
+
         // 1. Dải chỉ số thị trường ở đỉnh (Ảnh 2)
         indicesPanel = new MarketIndicesPanel();
 
@@ -51,27 +54,50 @@ public class DashboardPanel extends JPanel {
                 BorderFactory.createLineBorder(new Color(0x32, 0x38, 0x44)),
                 BorderFactory.createEmptyBorder(4, 6, 4, 6)
         ));
-        searchField.setText("Tìm kiếm CK");
         searchField.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        searchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            private void update() {
+                priceBoard.filter(searchField.getText());
+            }
+            @Override public void insertUpdate(javax.swing.event.DocumentEvent e) { update(); }
+            @Override public void removeUpdate(javax.swing.event.DocumentEvent e) { update(); }
+            @Override public void changedUpdate(javax.swing.event.DocumentEvent e) { update(); }
+        });
         searchBox.add(searchIcon);
         searchBox.add(searchField);
 
         // Ở giữa: Các tabs (VN30, HOSE, HNX, UPCOM, Phái sinh...)
         JPanel tabsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
         tabsPanel.setOpaque(false);
-        String[] tabs = {"Danh mục của tôi", "VN30", "HNX30", "HOSE", "HNX", "UPCOM", "Thỏa thuận", "Phái sinh"};
+        String[] tabs = {"Tất cả", "VN30", "HNX30", "HOSE", "HNX", "UPCOM", "Phái sinh"};
+        java.util.List<JButton> tabButtons = new java.util.ArrayList<>();
         for (int i = 0; i < tabs.length; i++) {
             String tab = tabs[i];
             JButton tabBtn = new JButton(tab);
-            tabBtn.setFont(new Font("Segoe UI", i == 1 ? Font.BOLD : Font.PLAIN, 12));
-            tabBtn.setForeground(i == 1 ? new Color(0x0e, 0xcb, 0x81) : new Color(0x84, 0x8e, 0x9c));
-            tabBtn.setBackground(i == 1 ? new Color(0x1e, 0x2e, 0x2a) : new Color(0x16, 0x19, 0x1f));
+            tabBtn.setFont(new Font("Segoe UI", i == 0 ? Font.BOLD : Font.PLAIN, 12));
+            tabBtn.setForeground(i == 0 ? new Color(0x0e, 0xcb, 0x81) : new Color(0x84, 0x8e, 0x9c));
+            tabBtn.setBackground(i == 0 ? new Color(0x1e, 0x2e, 0x2a) : new Color(0x16, 0x19, 0x1f));
             tabBtn.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createLineBorder(i == 1 ? new Color(0x0e, 0xcb, 0x81) : new Color(0x23, 0x27, 0x30)),
+                    BorderFactory.createLineBorder(i == 0 ? new Color(0x0e, 0xcb, 0x81) : new Color(0x23, 0x27, 0x30)),
                     BorderFactory.createEmptyBorder(4, 10, 4, 10)
             ));
             tabBtn.setFocusPainted(false);
             tabBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            tabBtn.addActionListener(e -> {
+                for (JButton b : tabButtons) {
+                    boolean active = b == tabBtn;
+                    b.setFont(new Font("Segoe UI", active ? Font.BOLD : Font.PLAIN, 12));
+                    b.setForeground(active ? new Color(0x0e, 0xcb, 0x81) : new Color(0x84, 0x8e, 0x9c));
+                    b.setBackground(active ? new Color(0x1e, 0x2e, 0x2a) : new Color(0x16, 0x19, 0x1f));
+                    b.setBorder(BorderFactory.createCompoundBorder(
+                            BorderFactory.createLineBorder(active ? new Color(0x0e, 0xcb, 0x81) : new Color(0x23, 0x27, 0x30)),
+                            BorderFactory.createEmptyBorder(4, 10, 4, 10)
+                    ));
+                }
+                searchField.setText("");
+                priceBoard.filterCategory(tab);
+            });
+            tabButtons.add(tabBtn);
             tabsPanel.add(tabBtn);
         }
 
@@ -87,7 +113,13 @@ public class DashboardPanel extends JPanel {
         quickOrderBtn.setBorder(BorderFactory.createEmptyBorder(6, 16, 6, 16));
         quickOrderBtn.addActionListener(e -> {
             if (tradeRequestListener != null) {
-                tradeRequestListener.accept("AAPL");
+                int selectedRow = priceBoard.getTable().getSelectedRow();
+                String targetSymbol = "AAPL";
+                if (selectedRow >= 0) {
+                    int modelRow = priceBoard.getTable().convertRowIndexToModel(selectedRow);
+                    targetSymbol = priceBoard.getTable().getModel().getValueAt(modelRow, 0).toString();
+                }
+                tradeRequestListener.accept(targetSymbol);
             }
         });
         actionBox.add(quickOrderBtn);
@@ -102,8 +134,6 @@ public class DashboardPanel extends JPanel {
         northPanel.add(toolbar, BorderLayout.SOUTH);
         add(northPanel, BorderLayout.NORTH);
 
-        priceBoard = new PriceBoardPanel();
-        portfolioPanel = new PortfolioPanel();
         JSplitPane marketAndPortfolio = new JSplitPane(
                 JSplitPane.VERTICAL_SPLIT, priceBoard, portfolioPanel);
         marketAndPortfolio.setResizeWeight(0.68);

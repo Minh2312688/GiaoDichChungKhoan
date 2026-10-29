@@ -37,21 +37,24 @@ public class TestAuth {
         assertEquals(new BigDecimal("25000.00"), portfolio.cash(), "Tiền mặt ban đầu là $25,000");
 
         // Kiểm tra danh sách chứng khoán đang giữ
-        assertEquals(3, portfolio.positions().size(), "Demo phải có 3 mã nắm giữ");
+        assertEquals(6, portfolio.positions().size(), "Demo phải có 6 mã nắm giữ");
         assertTrue(portfolio.positions().containsKey("AAPL"));
         assertEquals(50, portfolio.positions().get("AAPL").quantity());
         assertTrue(portfolio.positions().containsKey("BTC"));
         assertEquals(1, portfolio.positions().get("BTC").quantity());
         assertTrue(portfolio.positions().containsKey("ETH"));
         assertEquals(5, portfolio.positions().get("ETH").quantity());
+        assertTrue(portfolio.positions().containsKey("FPT"));
+        assertTrue(portfolio.positions().containsKey("SSI"));
+        assertTrue(portfolio.positions().containsKey("HPG"));
 
         // Kiểm tra lịch sử giao dịch
         assertFalse(portfolio.trades().isEmpty(), "Phải có lịch sử giao dịch mẫu");
-        assertEquals(4, portfolio.trades().size(), "Demo phải có 4 lệnh khớp mẫu");
+        assertEquals(7, portfolio.trades().size(), "Demo phải có 7 lệnh khớp mẫu");
 
         // Kiểm tra các lệnh chờ khớp
         assertFalse(portfolio.pendingOrders().isEmpty(), "Phải có danh sách lệnh chờ khớp mẫu");
-        assertEquals(3, portfolio.pendingOrders().size(), "Demo phải có 3 lệnh chờ");
+        assertEquals(5, portfolio.pendingOrders().size(), "Demo phải có 5 lệnh chờ");
         assertTrue(portfolio.pendingOrders().stream().anyMatch(o -> o.type() == OrderType.LIMIT && o.side() == OrderSide.BUY));
         assertTrue(portfolio.pendingOrders().stream().anyMatch(o -> o.type() == OrderType.LIMIT && o.side() == OrderSide.SELL));
         assertTrue(portfolio.pendingOrders().stream().anyMatch(o -> o.type() == OrderType.STOP_LOSS));
@@ -157,9 +160,9 @@ public class TestAuth {
         assertTrue(window.getUserBadgeLabel().getText().contains("demo"));
 
         // Kiểm tra dữ liệu demo được áp dụng vào facade
-        assertEquals(3, window.getFacade().positions().size());
-        assertEquals(4, window.getFacade().trades().size());
-        assertEquals(3, window.getFacade().pendingOrders().size());
+        assertEquals(6, window.getFacade().positions().size());
+        assertEquals(7, window.getFacade().trades().size());
+        assertEquals(5, window.getFacade().pendingOrders().size());
         assertEquals(new BigDecimal("25000.00"), window.getFacade().cash());
 
         // Chuyển sang người dùng mới

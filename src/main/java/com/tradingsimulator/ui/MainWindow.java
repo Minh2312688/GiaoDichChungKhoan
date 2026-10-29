@@ -75,11 +75,22 @@ public final class MainWindow extends JFrame {
     this.facade = facade;
     ThemeManager.load("theme_config.json").applyTo(getContentPane());
 
-    // 1. Dữ liệu thị trường
-    Map<String, BigDecimal> initialPrices = Map.of(
-        "AAPL", new BigDecimal("150.00"),
-        "BTC", new BigDecimal("45000.00"),
-        "ETH", new BigDecimal("3000.00"));
+    // 1. Dữ liệu thị trường (Bao gồm VN30 và Crypto/Quốc tế để kiểm thử toàn diện)
+    Map<String, BigDecimal> initialPrices = new java.util.LinkedHashMap<>();
+    initialPrices.put("FPT", new BigDecimal("52.50"));
+    initialPrices.put("SSI", new BigDecimal("31.80"));
+    initialPrices.put("HPG", new BigDecimal("21.20"));
+    initialPrices.put("VIC", new BigDecimal("41.50"));
+    initialPrices.put("VNM", new BigDecimal("66.80"));
+    initialPrices.put("TCB", new BigDecimal("23.40"));
+    initialPrices.put("MBB", new BigDecimal("24.15"));
+    initialPrices.put("MWG", new BigDecimal("65.30"));
+    initialPrices.put("ACB", new BigDecimal("21.10"));
+    initialPrices.put("BID", new BigDecimal("34.00"));
+    initialPrices.put("CTG", new BigDecimal("30.70"));
+    initialPrices.put("AAPL", new BigDecimal("150.00"));
+    initialPrices.put("BTC", new BigDecimal("45000.00"));
+    initialPrices.put("ETH", new BigDecimal("3000.00"));
     this.symbols = initialPrices.keySet();
     this.adapter = new MarketAdapter(new RandomWalkMarketDataProvider(initialPrices, 42L));
     this.facade.setMarketAdapter(this.adapter);

@@ -66,6 +66,9 @@ public final class AuthService {
         positions.put("AAPL", new Position("AAPL", 50, new BigDecimal("145.00")));
         positions.put("BTC", new Position("BTC", 1, new BigDecimal("42000.00")));
         positions.put("ETH", new Position("ETH", 5, new BigDecimal("2850.00")));
+        positions.put("FPT", new Position("FPT", 200, new BigDecimal("51.20")));
+        positions.put("SSI", new Position("SSI", 500, new BigDecimal("30.50")));
+        positions.put("HPG", new Position("HPG", 1000, new BigDecimal("20.80")));
 
         // 2. Lịch sử mua/bán đã khớp
         Instant now = Instant.now();
@@ -77,14 +80,22 @@ public final class AuthService {
             new Trade("BTC", OrderSide.BUY, 1, new BigDecimal("42000.00"),
                 new BigDecimal("42000.00"), now.minus(1, ChronoUnit.DAYS)),
             new Trade("ETH", OrderSide.BUY, 5, new BigDecimal("2850.00"),
-                new BigDecimal("14250.00"), now.minus(3, ChronoUnit.HOURS))
+                new BigDecimal("14250.00"), now.minus(3, ChronoUnit.HOURS)),
+            new Trade("FPT", OrderSide.BUY, 200, new BigDecimal("51.20"),
+                new BigDecimal("10240.00"), now.minus(4, ChronoUnit.HOURS)),
+            new Trade("SSI", OrderSide.BUY, 500, new BigDecimal("30.50"),
+                new BigDecimal("15250.00"), now.minus(5, ChronoUnit.HOURS)),
+            new Trade("HPG", OrderSide.BUY, 1000, new BigDecimal("20.80"),
+                new BigDecimal("20800.00"), now.minus(6, ChronoUnit.HOURS))
         );
 
-        // 3. Các lệnh chờ khớp (giá đặt chưa khớp với giá thị trường hiện tại: AAPL ~150, BTC ~45000, ETH ~3000)
+        // 3. Các lệnh chờ khớp
         List<Order> pendingOrders = List.of(
             new Order("AAPL", OrderSide.BUY, OrderType.LIMIT, 20, new BigDecimal("140.00")),
             new Order("BTC", OrderSide.SELL, OrderType.LIMIT, 1, new BigDecimal("48000.00")),
-            new Order("ETH", OrderSide.SELL, OrderType.STOP_LOSS, 2, new BigDecimal("2600.00"))
+            new Order("ETH", OrderSide.SELL, OrderType.STOP_LOSS, 2, new BigDecimal("2600.00")),
+            new Order("SSI", OrderSide.BUY, OrderType.LIMIT, 300, new BigDecimal("29.50")),
+            new Order("HPG", OrderSide.SELL, OrderType.LIMIT, 500, new BigDecimal("23.00"))
         );
 
         return new PortfolioMemento(cash, positions, trades, Map.of(), pendingOrders);

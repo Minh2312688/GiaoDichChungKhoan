@@ -260,7 +260,7 @@ public class SidebarNavigation extends JPanel {
                     g2.drawLine(midX, midY, midX, y + 4);
                     g2.drawLine(midX, midY, x + 11, midY);
                     break;
-                case PENDING: // Danh sách / sổ lệnh
+                case PENDING_ORDERS: // Danh sách / sổ lệnh
                     g2.setStroke(new BasicStroke(1.5f));
                     g2.drawRect(x + 2, y + 1, 11, 13);
                     g2.drawLine(x + 5, y + 4, x + 10, y + 4);

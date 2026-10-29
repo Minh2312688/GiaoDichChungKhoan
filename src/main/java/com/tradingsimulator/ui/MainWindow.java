@@ -107,6 +107,7 @@ public final class MainWindow extends JFrame {
 
     // 3. Khởi tạo các màn hình
     this.dashboardPanel = new DashboardPanel();
+    this.dashboardPanel.getPriceBoard().seedDefaultStocks();
     this.tradingPanel = new TradingPanel(symbols);
     this.botScreen = new BotScreen(facade);
     this.historyScreen = new HistoryScreen();

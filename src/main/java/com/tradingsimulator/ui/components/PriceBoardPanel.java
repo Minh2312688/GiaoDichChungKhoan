@@ -141,19 +141,22 @@ public final class PriceBoardPanel extends JPanel {
         });
     }
 
+    private boolean defaultStocksSeeded = false;
+
     public void seedDefaultStocks() {
-        if (model.getRowCount() == 0) {
+        if (!defaultStocksSeeded) {
+            defaultStocksSeeded = true;
             initDefaultStockRows();
         }
     }
 
     private void initDefaultStockRows() {
-        // Danh sách các mã cổ phiếu phổ biến thị trường (Ảnh 2 - SSI iBoard)
+        // Danh sách các mã cổ phiếu phổ biến thị trường (HOSE, VN30, HNX, HNX30, UPCOM)
         Object[][] sampleData = {
+            // HOSE / VN30
             {"ACB", "21.10", "21.15", "-1.17%", "22.80", "19.90", "21.35", "21.10", "4,000", "2,424,800", "21.30", "21.05"},
             {"BCM", "68.50", "68.60", "+0.44%", "73.20", "63.80", "68.20", "68.60", "200", "512,300", "69.10", "68.00"},
             {"BID", "34.00", "34.10", "+1.34%", "36.00", "31.30", "33.65", "34.10", "100", "4,961,900", "34.80", "33.90"},
-            {"BSR", "27.45", "27.50", "-4.35%", "30.75", "26.75", "28.75", "27.50", "300", "9,836,400", "28.85", "27.20"},
             {"BVH", "42.15", "42.20", "-0.71%", "45.10", "39.20", "42.45", "42.20", "500", "890,200", "42.60", "42.00"},
             {"CTG", "30.70", "30.75", "0.00%", "32.80", "28.60", "30.70", "30.70", "1,100", "5,485,000", "31.10", "30.60"},
             {"FPT", "52.50", "52.60", "-2.78%", "57.70", "50.30", "54.00", "52.50", "100", "7,932,800", "54.80", "52.50"},
@@ -181,14 +184,44 @@ public final class PriceBoardPanel extends JPanel {
             {"VNM", "66.80", "66.90", "-0.30%", "71.60", "62.40", "67.10", "66.90", "1,900", "3,500,400", "67.50", "66.50"},
             {"VPB", "19.85", "19.90", "+1.02%", "21.05", "18.35", "19.70", "19.90", "11,200", "15,800,900", "20.10", "19.65"},
             {"VRE", "18.30", "18.35", "+1.38%", "19.55", "17.05", "18.10", "18.35", "4,200", "7,620,000", "18.55", "18.00"},
-            // Dữ liệu mô phỏng trong bài
+
+            // HNX30 và HNX
+            {"SHS", "15.80", "15.90", "+2.60%", "17.30", "14.30", "15.40", "15.80", "15,000", "18,240,500", "16.10", "15.30"},
+            {"PVS", "40.20", "40.30", "+1.77%", "44.20", "36.20", "39.50", "40.20", "8,200", "6,150,000", "40.80", "39.50"},
+            {"IDC", "58.40", "58.50", "-0.68%", "64.20", "52.60", "58.80", "58.40", "2,100", "2,480,200", "59.50", "58.00"},
+            {"CEO", "16.50", "16.60", "+3.12%", "18.10", "14.90", "16.00", "16.50", "12,000", "9,850,300", "16.80", "15.90"},
+            {"MBS", "27.60", "27.70", "+1.85%", "30.30", "24.90", "27.10", "27.60", "5,400", "7,310,000", "28.00", "27.00"},
+            {"HUT", "17.20", "17.30", "0.00%", "18.90", "15.50", "17.20", "17.20", "4,500", "3,620,000", "17.50", "17.00"},
+            {"VCS", "62.00", "62.20", "-1.27%", "68.20", "55.80", "62.80", "62.00", "500", "450,200", "63.00", "61.80"},
+            {"TNG", "24.80", "24.90", "+2.06%", "27.20", "22.40", "24.30", "24.80", "3,800", "4,120,000", "25.20", "24.20"},
+            {"BVS", "38.50", "38.70", "+1.32%", "42.30", "34.70", "38.00", "38.50", "1,100", "1,200,000", "39.00", "37.80"},
+            {"DTD", "26.10", "26.20", "+0.77%", "28.70", "23.50", "25.90", "26.10", "900", "1,840,000", "26.50", "25.80"},
+            {"LAS", "23.40", "23.50", "+1.74%", "25.70", "21.10", "23.00", "23.40", "2,200", "2,900,000", "23.80", "22.90"},
+            {"PVC", "13.60", "13.70", "-0.73%", "14.90", "12.30", "13.70", "13.60", "1,500", "1,650,000", "13.90", "13.40"},
+
+            // UPCOM
+            {"BSR", "27.45", "27.50", "-4.35%", "30.75", "26.75", "28.75", "27.50", "300", "9,836,400", "28.85", "27.20"},
+            {"VGI", "78.50", "78.80", "+3.28%", "86.30", "70.70", "76.00", "78.50", "1,400", "1,920,000", "79.20", "75.80"},
+            {"MCH", "195.00", "195.50", "+1.04%", "214.50", "175.50", "193.00", "195.00", "200", "310,000", "196.00", "192.50"},
+
+            // Phái sinh / Quốc tế
             {"AAPL", "154.90", "155.10", "+3.33%", "160.50", "139.50", "150.00", "155.00", "5,200", "1,420,800", "156.20", "149.80"},
             {"BTC", "44990.00", "45010.00", "0.00%", "48150.00", "41850.00", "45000.00", "45000.00", "120", "45,200", "46200.00", "44100.00"},
             {"ETH", "2995.00", "3005.00", "0.00%", "3210.00", "2790.00", "3000.00", "3000.00", "850", "312,000", "3080.00", "2950.00"}
         };
 
         for (Object[] row : sampleData) {
-            model.addRow(row);
+            String sym = (String) row[0];
+            boolean exists = false;
+            for (int r = 0; r < model.getRowCount(); r++) {
+                if (sym.equals(model.getValueAt(r, 0))) {
+                    exists = true;
+                    break;
+                }
+            }
+            if (!exists) {
+                model.addRow(row);
+            }
         }
     }
 
@@ -314,9 +347,24 @@ public final class PriceBoardPanel extends JPanel {
             });
             return;
         }
-        if (category.equalsIgnoreCase("HNX30") || category.equalsIgnoreCase("HNX")) {
+        if (category.equalsIgnoreCase("HNX30")) {
             rowSorter.setRowFilter(new RowFilter<DefaultTableModel, Integer>() {
-                private final java.util.Set<String> hnx = java.util.Set.of("BSR", "SHS", "PVS", "IDC", "CEO");
+                private final java.util.Set<String> hnx30 = java.util.Set.of(
+                    "SHS", "PVS", "IDC", "CEO", "MBS", "HUT", "VCS", "TNG", "BVS", "DTD", "LAS", "PVC"
+                );
+                @Override
+                public boolean include(Entry<? extends DefaultTableModel, ? extends Integer> entry) {
+                    String symbol = entry.getStringValue(0).toUpperCase();
+                    return hnx30.contains(symbol);
+                }
+            });
+            return;
+        }
+        if (category.equalsIgnoreCase("HNX")) {
+            rowSorter.setRowFilter(new RowFilter<DefaultTableModel, Integer>() {
+                private final java.util.Set<String> hnx = java.util.Set.of(
+                    "SHS", "PVS", "IDC", "CEO", "MBS", "HUT", "VCS", "TNG", "BVS", "DTD", "LAS", "PVC"
+                );
                 @Override
                 public boolean include(Entry<? extends DefaultTableModel, ? extends Integer> entry) {
                     String symbol = entry.getStringValue(0).toUpperCase();
@@ -325,12 +373,27 @@ public final class PriceBoardPanel extends JPanel {
             });
             return;
         }
-        if (category.equalsIgnoreCase("HOSE")) {
+        if (category.equalsIgnoreCase("UPCOM")) {
             rowSorter.setRowFilter(new RowFilter<DefaultTableModel, Integer>() {
+                private final java.util.Set<String> upcom = java.util.Set.of("BSR", "VGI", "MCH");
                 @Override
                 public boolean include(Entry<? extends DefaultTableModel, ? extends Integer> entry) {
                     String symbol = entry.getStringValue(0).toUpperCase();
-                    return !symbol.equals("BTC") && !symbol.equals("ETH");
+                    return upcom.contains(symbol);
+                }
+            });
+            return;
+        }
+        if (category.equalsIgnoreCase("HOSE")) {
+            rowSorter.setRowFilter(new RowFilter<DefaultTableModel, Integer>() {
+                private final java.util.Set<String> nonHose = java.util.Set.of(
+                    "SHS", "PVS", "IDC", "CEO", "MBS", "HUT", "VCS", "TNG", "BVS", "DTD", "LAS", "PVC",
+                    "BSR", "VGI", "MCH", "BTC", "ETH"
+                );
+                @Override
+                public boolean include(Entry<? extends DefaultTableModel, ? extends Integer> entry) {
+                    String symbol = entry.getStringValue(0).toUpperCase();
+                    return !nonHose.contains(symbol);
                 }
             });
             return;

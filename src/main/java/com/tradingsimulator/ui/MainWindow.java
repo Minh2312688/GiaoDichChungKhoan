@@ -424,16 +424,21 @@ public final class MainWindow extends JFrame {
     }
     AuthService.getInstance().logout();
 
-    AuthDialog authDialog = new AuthDialog(this);
+    // An man hinh chinh phia sau khi hop thoai dang nhap mo ra
+    setVisible(false);
+
+    AuthDialog authDialog = new AuthDialog(null);
     authDialog.setVisible(true);
     if (authDialog.isAuthenticated()) {
       applyUser(authDialog.getAuthenticatedUser());
       if (statusBar != null) {
         statusBar.setText("Đã đăng nhập: " + currentUser.getFullName() + " (" + currentUser.getUsername() + ")");
       }
+      setVisible(true);
     } else if (currentUser != null) {
-      // Giữ lại phiên hiện tại nếu đóng hộp thoại mà không đăng nhập tài khoản khác
+      // Giu lai phien hien tai neu nguoi dung huy dang nhap
       AuthService.getInstance().setCurrentUser(currentUser);
+      setVisible(true);
     }
   }
 
